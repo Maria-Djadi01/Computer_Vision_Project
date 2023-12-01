@@ -26,9 +26,9 @@
 
 Welcome to the VisionGames project! This repository contains two main parts, each with its own set of functionalities. Additionally, there's a GUI section for a user-friendly interface.
 
-## Partie_1
+## Partie 1
 
-The `Partie_1` directory contains modules related to image processing and object detection.
+The `Part_1` directory contains modules related to image processing and object detection.
 
 - `filters.py`: Module for implementing image filters.
 - `object_detection.py`: Module for object color detection.
@@ -37,7 +37,7 @@ The `Partie_1` directory contains modules related to image processing and object
 - `green_screen.py`: Module for the "Green Screen" functionality.
 - `main_partie_1.py`: Main script for Partie 1 functionality.
 
-## Partie_2
+## Part 2
 
 The `Partie_2` directory is dedicated to a brick racing game implementation.
 

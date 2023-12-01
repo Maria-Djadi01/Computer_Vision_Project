@@ -2,12 +2,35 @@ import cv2
 import numpy as np
 
 
+# calculate the time of function call
+def timeit(func):
+    import time
+
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        func(*args, **kwargs)
+        end = time.time()
+        elapsed_time_ms = (end - start) * 1000
+
+        print(f"Time taken by {func.__name__} is {elapsed_time_ms:.2f} milliseconds")
+
+    return wrapper
+
+
 def my_max(a, b):
     return np.maximum(a, b)
 
 
 def my_min(a, b):
     return np.minimum(a, b)
+
+
+def my_max1(l):
+    return max(l)
+
+
+def my_min1(l):
+    return min(l)
 
 
 def my_range(stop, start=0, step=1):
@@ -51,3 +74,100 @@ def my_copy(img, gray=True):
                     copy[i][j][k] = img[i][j][k]
 
     return np.array(copy)
+
+
+def BGR2HSV_color(color):
+    b, g, r = color[0], color[1], color[2]
+
+    # Calculate Value (brightness)
+    v = max(b, g, r)
+
+    # Calculate Saturation
+    if v == 0:
+        s = 0
+    else:
+        s = int(((v - min(b, g, r)) / v) * 255)
+
+    # Calculate Hue
+    if v == min(b, g, r):
+        h = 0  # undefined, set to 0
+    elif v == r:
+        h = int(60 * (g - b) / (v - min(b, g, r)))
+    elif v == g:
+        h = int(60 * (2 + (b - r) / (v - min(b, g, r))))
+    elif v == b:
+        h = int(60 * (4 + (r - g) / (v - min(b, g, r))))
+
+    # Normalize to the range [0, 255]
+    h = (h + 360) % 360  # Ensure hue is positive
+    h = int((h / 360) * 255)
+    v = int((v / 255) * 255)
+
+    return h, s, v
+
+def BGR2HSV(img):
+    height, width, channels = my_shape(img, gray=False)
+    hsv_image = my_copy(img, gray=False)
+
+    for i in my_range(height):
+        for j in my_range(width):
+            hsv_image[i, j] = BGR2HSV_color(img[i, j])
+
+    return hsv_image
+
+
+def get_limits(hsv_color, h_limit, s_limit, v_limit):
+    upper_bound = hsv_color[0] + h_limit, hsv_color[1] + s_limit, hsv_color[2] + v_limit
+    lower_bound = hsv_color[0] - h_limit, hsv_color[1] - s_limit, hsv_color[2] - v_limit
+
+    return lower_bound, upper_bound
+
+
+def my_inRange(img, lower_bound, upper_bound):
+    height, width, channels = my_shape(img, gray=False)
+    mask = my_copy(img, gray=False)
+
+    for i in my_range(height):
+        for j in my_range(width):
+            if (
+                img[i, j][0] >= lower_bound[0]
+                and img[i, j][0] <= upper_bound[0]
+                and img[i, j][1] >= lower_bound[1]
+                and img[i, j][1] <= upper_bound[1]
+                and img[i, j][2] >= lower_bound[2]
+                and img[i, j][2] <= upper_bound[2]
+            ):
+                mask[i, j] = 255
+            else:
+                mask[i, j] = 0
+
+    return mask
+
+def detect_color_object(img, color, h_limit, s_limit, v_limit):
+    hsv_color = BGR2HSV_color(color)
+    hsv_img = BGR2HSV(img)
+    lower_b, upper_b = get_limits(hsv_color, h_limit, s_limit, v_limit)
+    mask = my_inRange(hsv_img, lower_b, upper_b)
+    return mask
+
+# function that replaces the background with the an image
+def green_screen(mask, img, back):
+    result = my_copy(img, gray=False)
+    height, width, channels = my_shape(img, gray=False)
+    for i in my_range(height):
+        for j in my_range(width):
+            if mask[i, j][0] == 255:
+                result[i, j] = back[i, j]
+    return result
+
+
+# # try mask fun
+# img = cv2.imread("D:\\2M\Vision\Computer_Vision_Project\\bleu.png")
+# color = (0, 0, 255)
+# mask = detect_color_object(img, color)
+# cv2.imshow("mask", mask)
+# cv2.imshow("img", img)
+# # cv2.imshow("img hsv", hsv_img)
+# # cv2.imshow("cv hsv", hsv_img_cv)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
