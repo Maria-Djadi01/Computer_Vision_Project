@@ -1,6 +1,6 @@
 import sys
 
-sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
+sys.path.insert(0, "../../../Computer_Vision_Project")
 from utils import *
 
 
