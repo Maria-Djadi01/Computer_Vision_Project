@@ -116,11 +116,11 @@ def BGR2HSV(img):
     return hsv_image
 
 
-def get_limits(hsv_color, h_limit, s_limit, v_limit):
-    upper_bound = hsv_color[0] + h_limit, hsv_color[1] + s_limit, hsv_color[2] + v_limit
-    lower_bound = hsv_color[0] - h_limit, hsv_color[1] - s_limit, hsv_color[2] - v_limit
+# def get_limits(hsv_color, h_limit, s_limit, v_limit):
+#     upper_bound = hsv_color[0] + h_limit, hsv_color[1] + s_limit, hsv_color[2] + v_limit
+#     lower_bound = hsv_color[0] - h_limit, hsv_color[1] - s_limit, hsv_color[2] - v_limit
 
-    return lower_bound, upper_bound
+#     return lower_bound, upper_bound
 
 
 def my_inRange(img, lower_bound, upper_bound):
@@ -143,14 +143,53 @@ def my_inRange(img, lower_bound, upper_bound):
 
     return mask
 
-def detect_color_object(img, color, h_limit, s_limit, v_limit):
-    hsv_color = BGR2HSV_color(color)
-    hsv_img = BGR2HSV(img)
-    lower_b, upper_b = get_limits(hsv_color, h_limit, s_limit, v_limit)
-    mask = my_inRange(hsv_img, lower_b, upper_b)
-    return mask
+def get_limits(hsv_color, h_limit, s_limit, v_limit):
+    lower_bound = np.array([max(0, hsv_color[0] - h_limit), max(0, hsv_color[1] - s_limit), max(0, hsv_color[2] - v_limit)])
+    upper_bound = np.array([min(255, hsv_color[0] + h_limit), min(255, hsv_color[1] + s_limit), min(255, hsv_color[2] + v_limit)])
+    return lower_bound, upper_bound
 
-# function that replaces the background with the an image
+# ---------------------------------------------------------------
+# Enhancement functions
+# ---------------------------------------------------------------
+def remove_noise(mask, kernel_size=3):
+    kernel = np.ones((kernel_size, kernel_size), np.uint8)
+
+    mask_en = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
+    return mask_en
+
+def contour_filtering(binary_mask, min_area_threshold):
+    # Find contours in the binary mask
+    contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Filter contours based on area
+    filtered_contours = [contour for contour in contours if cv2.contourArea(contour) > min_area_threshold]
+
+    # Create an empty mask to draw the filtered contours
+    filtered_mask = np.zeros_like(binary_mask)
+
+    # Draw the filtered contours on the mask
+    cv2.drawContours(filtered_mask, filtered_contours, -1, 1, thickness=cv2.FILLED)
+
+    return filtered_mask
+
+# ----------------------------------------------------------------
+# Object detection function
+# ----------------------------------------------------------------
+
+def detect_color_object(img, color, h_limit, s_limit, v_limit, min_area):
+    hsv_color = cv2.cvtColor(np.uint8([[color]]), cv2.COLOR_BGR2HSV)[0][0]
+    hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    lower_b, upper_b = get_limits(hsv_color, h_limit, s_limit, v_limit)
+    mask = cv2.inRange(hsv_img, lower_b, upper_b)
+    mask_morph_filter = remove_noise(mask)
+    mask_contour_filter = contour_filtering(mask_morph_filter, 100)
+    return mask_morph_filter
+
+
+# ----------------------------------------------------------------
+# Green screen function
+# ----------------------------------------------------------------
 def green_screen(mask, img, back):
     result = my_copy(img, gray=False)
     height, width, channels = my_shape(img, gray=False)
