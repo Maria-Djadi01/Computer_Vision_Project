@@ -2,7 +2,7 @@ import cv2
 import sys
 from PIL import Image
 
-sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
+sys.path.insert(0, "../../Computer_Vision_Project")
 
 from utils import detect_color_object
 
@@ -34,7 +34,9 @@ while True:
         i += 1
         color = b, g, r
     else:
-        mask = detect_color_object(frame, color, 10, 100, 100, cv2.getTrackbarPos("min_area", "frame"))
+        mask = detect_color_object(
+            frame, color, 10, 100, 100, cv2.getTrackbarPos("min_area", "frame")
+        )
         mask_ = Image.fromarray(mask)
         bbox = mask_.getbbox()
         if bbox:
