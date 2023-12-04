@@ -8,23 +8,28 @@ class BrickRacingGame:
         self.car_width = 30
         self.car_height = 30
         self.car_color = "green"
-        # pos if the right upper corner of the rectangle
         self.car_pos = [320, 400]
 
-        # Obstacles
         self.obstacle_width, self.obstacle_height = 50, 30
         self.obstacle_color = "red"
         self.obstacle_speed = 3
-        self.obstacle_frequency = 1
         self.obstacle_id = None
         self.new_obstacle_created = False
 
         self.score = 0
 
+        self.start_button = tk.Button(self.master, text="Start", command=self.start_game)
+        self.start_button.place(relx=0.9, rely=0.1, anchor="center")
+
+        self.end_button = tk.Button(self.master, text="End", command=self.end_game)
+        self.end_button.place(relx=0.9, rely=0.2, anchor="center")
+
+        self.score_label = tk.Label(self.master, text=f"Score: {self.score}")
+        self.score_label.place(relx=0.9, rely=0.3, anchor="center")
+
         self.canvas = tk.Canvas(self.master, width=399, height=570, bg="black")
         self.canvas.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Draw the car
         self.car = self.canvas.create_rectangle(
             self.car_pos[0],
             self.car_pos[1],
@@ -33,11 +38,9 @@ class BrickRacingGame:
             fill=self.car_color,
         )
 
-        # Move the car using Arrows
         self.master.bind("<Left>", self.move_left)
         self.master.bind("<Right>", self.move_right)
 
-        # self.generate_obstacle()
         self.game_loop()
 
     def move_left(self, event):
@@ -53,6 +56,42 @@ class BrickRacingGame:
             self.draw_car()
         else:
             self.car_pos[0] = 320
+
+    def start_game(self):
+        self.score = 0
+        self.score_label.config(text=f"Score: {self.score}")
+        self.countdown()
+        self.car_pos = [320, 400]
+        # the problem is that the car is not visible after the countdown
+        self.canvas.delete(self.car)
+        self.car = self.canvas.create_rectangle(
+            self.car_pos[0],
+            self.car_pos[1],
+            self.car_pos[0] + self.car_width,
+            self.car_pos[1] + self.car_height,
+            fill=self.car_color,
+        )
+        
+        self.game_loop()
+
+    def end_game(self):
+        self.master.destroy()
+
+    def countdown(self):
+        countdown_text = ["3", "2", "1", "GO!"]
+
+        for i, text in enumerate(countdown_text, start=1):
+            self.canvas.delete("all")
+            self.draw_car()
+            self.canvas.create_text(
+                self.canvas.winfo_width() / 2,
+                self.canvas.winfo_height() / 2,
+                text=text,
+                font=("Helvetica", 30),
+                fill="red",
+            )
+            self.master.update()
+            self.master.after(1000)
 
     def draw_car(self):
         self.canvas.coords(
@@ -78,58 +117,56 @@ class BrickRacingGame:
             self.canvas.move(obstacle_id, 0, self.obstacle_speed)
             obstacle_coords = self.canvas.coords(obstacle_id)
             if obstacle_coords[1] + self.obstacle_height > self.canvas.winfo_height():
+                self.score += 1
+                print("Score: ", self.score)
                 self.canvas.delete(obstacle_id)
                 self.obstacle_id = None
 
-    def game_loop(self):
-        # Move the existing obstacle
-        self.move_obstacle(self.obstacle_id)
+    def game_over(self):
+        self.canvas.create_text(
+            self.canvas.winfo_width() / 2,
+            self.canvas.winfo_height() / 2,
+            text=f"Game Over\nYour score is: {self.score}",
+            font=("Helvetica", 30),
+            fill="red",
+        )
 
-        # Check if the obstacle has reached a specific position
+    def game_loop(self):
+        self.score_label.config(text=f"Score: {self.score}")
+        self.draw_car()
+        if not self.obstacle_id or not self.new_obstacle_created:
+            self.generate_obstacle()
+            self.new_obstacle_created = True
+
+        for obstacle_id in self.canvas.find_all():
+            if obstacle_id == self.car:
+                continue
+            self.move_obstacle(obstacle_id)
+
         if self.obstacle_id:
             obstacle_coords = self.canvas.coords(self.obstacle_id)
+            if obstacle_coords[1] > 350:
+                self.new_obstacle_created = False
+
+        for obstacle_id in self.canvas.find_all():
+            if obstacle_id == self.car:
+                continue
+            obstacle_coords = self.canvas.coords(obstacle_id)
             if (
-                obstacle_coords[1] + self.obstacle_height >= 300
-                and not self.new_obstacle_created
+                obstacle_coords[1] + self.obstacle_height >= self.car_pos[1]
+                and obstacle_coords[1] <= self.car_pos[1] + self.car_height
+                and obstacle_coords[0] + self.obstacle_width >= self.car_pos[0]
+                and obstacle_coords[0] <= self.car_pos[0] + self.car_width
             ):
-                self.new_obstacle_created = True
-                # Generate multiple obstacles in one iteration
-                num_new_obstacles = (
-                    3  # Set the number of obstacles you want to generate
-                )
-                for _ in range(num_new_obstacles):
-                    self.generate_obstacle()
-
-        # Check if the obstacle has passed the specified y-coordinate, reset the flag
-        if self.obstacle_id and obstacle_coords[1] + self.obstacle_height >= 400:
-            self.new_obstacle_created = False
-
-        # Rest of the code remains unchanged
-        new_obstacle_frequency = random.randint(1, 5)
-        if (
-            new_obstacle_frequency == 1
-            and not self.obstacle_id
-            and not self.new_obstacle_created
-        ):
-            # Generate one obstacle in each iteration
-            self.generate_obstacle()
-
-        elif self.obstacle_id:
-            obstacle_coords = self.canvas.coords(self.obstacle_id)
-            if (
-                obstacle_coords[1] + self.obstacle_height > self.car_pos[1]
-                and obstacle_coords[0] < self.car_pos[0] + self.car_width
-                and obstacle_coords[0] + self.obstacle_width > self.car_pos[0]
-            ):
+                self.canvas.delete(self.car)
                 self.canvas.delete(self.obstacle_id)
                 self.obstacle_id = None
-                self.score += 1
-                print("Score:", self.score)
+                self.game_over()
+                return
 
         self.master.after(10, self.game_loop)
 
 
-# Create the main Tkinter window
 root = tk.Tk()
 root.title("Vision Project")
 window_width = 700
@@ -143,8 +180,6 @@ centerY = int(screen_height / 2 - window_height / 2)
 
 root.geometry(f"{window_width}x{window_height}+{centerX}+{centerY}")
 
-
 game = BrickRacingGame(root)
 
-# Run the Tkinter event loop
 root.mainloop()
