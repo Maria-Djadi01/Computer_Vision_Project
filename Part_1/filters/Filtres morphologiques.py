@@ -93,20 +93,7 @@ def closing( img, kernel ) :
 
 
 # ------------------ Test
-
 """
-img = [ [0,0,0,0,0,0,0], [255,0,0,0,0,0,0], [255,0,0,0,0,0,0], [255,255,0,0,0,0,0], [255,255,255,0,0,0,0], [255,255,255,0,0,0,0], [0,0,0,0,0,0,0] ]
-img = np.array( img, dtype='uint8' )
-dil = dilation( img, kernel )
-eros = erosion( img, kernel )
-print( img, '\n\n', dil, '\n\n', eros )"""
-
-"""kernel = cv2.getStructuringElement( cv2.MORPH_CROSS, (9, 9) )
-img_result_dilation = cv2.dilate( img, kernel )
-img_result_erosion = cv2.erode( img, kernel )
-img_result_opening = cv2.morphologyEx( img1, cv2.MORPH_OPEN, kernel )
-img_result_closing = cv2.morphologyEx( img2, cv2.MORPH_CLOSE, kernel )"""
-
 img = cv2.imread( "j.png", 0 )
 img1 = cv2.imread( "j1.png", 0 )
 img2 = cv2.imread( "j2.png", 0 )
@@ -139,7 +126,7 @@ cv2.imshow( "image opening", img_result_opening )
 cv2.imshow( "image closing", img_result_closing )
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
+"""
 
 
 
