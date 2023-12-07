@@ -177,14 +177,21 @@ def contour_filtering(binary_mask, min_area_threshold):
 # Object detection function
 # ----------------------------------------------------------------
 
-def detect_color_object(img, color, h_limit, s_limit, v_limit, min_area):
+def detect_color_object(img, color, h_limit, s_limit, v_limit):
     hsv_color = cv2.cvtColor(np.uint8([[color]]), cv2.COLOR_BGR2HSV)[0][0]
     hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     lower_b, upper_b = get_limits(hsv_color, h_limit, s_limit, v_limit)
     mask = cv2.inRange(hsv_img, lower_b, upper_b)
-    mask_morph_filter = remove_noise(mask)
-    mask_contour_filter = contour_filtering(mask_morph_filter, 100)
-    return mask_morph_filter
+    mask = remove_noise(mask)
+    contours = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    contours = sorted(contours, key=lambda x: cv2.contourArea(x), reverse=True)
+    
+    points = []
+    for contour in contours:
+        if cv2.contourArea(contour):
+            (x, y), rayon = cv2.minEnclosingCircle(contour)
+            points.append((int(x), int(y)))
+    return img, mask, points
 
 
 # ----------------------------------------------------------------
