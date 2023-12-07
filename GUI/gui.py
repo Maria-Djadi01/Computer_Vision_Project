@@ -1,5 +1,10 @@
 import tkinter as tk
 import random
+import sys
+
+# sys.path.append("../../Computer_Vision_Project")
+# sys.path.insert(1, "../Part_1")
+# import object_detection
 
 
 class BrickRacingGame:
@@ -18,7 +23,12 @@ class BrickRacingGame:
 
         self.score = 0
 
-        self.start_button = tk.Button(self.master, text="Start", command=self.start_game)
+        self.game_started = False
+        self.game_ended = False
+
+        self.start_button = tk.Button(
+            self.master, text="Start", command=self.start_game
+        )
         self.start_button.place(relx=0.9, rely=0.1, anchor="center")
 
         self.end_button = tk.Button(self.master, text="End", command=self.end_game)
@@ -41,8 +51,6 @@ class BrickRacingGame:
         self.master.bind("<Left>", self.move_left)
         self.master.bind("<Right>", self.move_right)
 
-        self.game_loop()
-
     def move_left(self, event):
         self.car_pos[0] -= 133
         if self.car_pos[0] >= 0:
@@ -58,40 +66,56 @@ class BrickRacingGame:
             self.car_pos[0] = 320
 
     def start_game(self):
-        self.score = 0
-        self.score_label.config(text=f"Score: {self.score}")
-        self.countdown()
-        self.car_pos = [320, 400]
-        # the problem is that the car is not visible after the countdown
-        self.canvas.delete(self.car)
-        self.car = self.canvas.create_rectangle(
-            self.car_pos[0],
-            self.car_pos[1],
-            self.car_pos[0] + self.car_width,
-            self.car_pos[1] + self.car_height,
-            fill=self.car_color,
-        )
-        
-        self.game_loop()
+        if not self.game_started:
+            self.game_ended = False
+            self.game_started = True
+            self.score = 0
+            self.score_label.config(text=f"Score: {self.score}")
+            self.countdown()
+            self.car_pos = [320, 400]
+            self.canvas.delete(self.car)
+            self.car = self.canvas.create_rectangle(
+                self.car_pos[0],
+                self.car_pos[1],
+                self.car_pos[0] + self.car_width,
+                self.car_pos[1] + self.car_height,
+                fill=self.car_color,
+            )
+
+            self.game_loop()
 
     def end_game(self):
-        self.master.destroy()
+        if not self.game_ended:
+            self.game_ended = True
+            self.game_started = False
+            self.canvas.delete("all")
+            self.canvas.create_text(
+                self.canvas.winfo_width() / 2,
+                self.canvas.winfo_height() / 2,
+                text="Game Over",
+                font=("Helvetica", 30),
+                fill="red",
+            )
 
     def countdown(self):
         countdown_text = ["3", "2", "1", "GO!"]
 
         for i, text in enumerate(countdown_text, start=1):
-            self.canvas.delete("all")
-            self.draw_car()
+            self.canvas.delete("countdown_text")  # Delete only the text item
             self.canvas.create_text(
                 self.canvas.winfo_width() / 2,
                 self.canvas.winfo_height() / 2,
                 text=text,
                 font=("Helvetica", 30),
                 fill="red",
+                tags="countdown_text",  # Add a tag to the text item
             )
             self.master.update()
-            self.master.after(1000)
+            self.master.after(500)
+            self.canvas.delete("countdown_text")  # Delete only the text item
+            self.draw_car()
+            self.master.update()
+            self.master.after(500)
 
     def draw_car(self):
         self.canvas.coords(
@@ -123,6 +147,7 @@ class BrickRacingGame:
                 self.obstacle_id = None
 
     def game_over(self):
+        self.canvas.delete("all")
         self.canvas.create_text(
             self.canvas.winfo_width() / 2,
             self.canvas.winfo_height() / 2,
@@ -132,6 +157,8 @@ class BrickRacingGame:
         )
 
     def game_loop(self):
+        # if not self.game_ended:
+        #     self.game_ended = False
         self.score_label.config(text=f"Score: {self.score}")
         self.draw_car()
         if not self.obstacle_id or not self.new_obstacle_created:
@@ -143,11 +170,13 @@ class BrickRacingGame:
                 continue
             self.move_obstacle(obstacle_id)
 
+        # Check if the current obstacle has passed a certain position
         if self.obstacle_id:
             obstacle_coords = self.canvas.coords(self.obstacle_id)
             if obstacle_coords[1] > 350:
                 self.new_obstacle_created = False
 
+        # Check for collisions
         for obstacle_id in self.canvas.find_all():
             if obstacle_id == self.car:
                 continue
@@ -162,6 +191,7 @@ class BrickRacingGame:
                 self.canvas.delete(self.obstacle_id)
                 self.obstacle_id = None
                 self.game_over()
+                self.game_started = False
                 return
 
         self.master.after(10, self.game_loop)
