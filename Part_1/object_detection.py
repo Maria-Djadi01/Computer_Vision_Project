@@ -25,7 +25,7 @@ cv2.setTrackbarPos("min_area", "frame", 100)
 
 while True:
     ret, frame = cap.read()
-    if i <= 50:
+    if i <= 100:
         x = int(desired_width / 4)
         y = int(desired_height / 2)
         cv2.circle(frame, (x, y), 5, (0, 255, 0), 2)
@@ -34,19 +34,13 @@ while True:
         i += 1
         color = b, g, r
     else:
-        mask = detect_color_object(
-            frame, color, 10, 100, 100, cv2.getTrackbarPos("min_area", "frame")
-        )
-        mask_ = Image.fromarray(mask)
-        bbox = mask_.getbbox()
-        if bbox:
-            cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
+        frame, mask, points = detect_color_object(frame, color, 20, 100, 100)
+        if len(points) > 0:
+            cv2.circle(frame, points[0], 10, (0, 255, 0), 2)
         cv2.imshow("frame", cv2.flip(frame, 1))
         cv2.imshow("mask", cv2.flip(mask, 1))
-
-    if cv2.waitKey(1) & 0xFF == ord("q"):
+    if cv2.waitKey(1) == ord("q"):
         break
 
-
-cap.release()
+cv2.release()
 cv2.destroyAllWindows()
