@@ -1,16 +1,5 @@
 from utils import *
 
-def my_range(stop, start=0, step=1):
-    result = []
-
-    current_value = start
-
-    while current_value < stop:
-        result.append(current_value)
-        current_value += step
-
-    return result
-
 def partition(arr, low, high):
     pivot = arr[high]
     i = low - 1
