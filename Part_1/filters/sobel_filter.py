@@ -1,5 +1,6 @@
 from utils import *
 
+
 def sobel_filter(image):
     # Get the dimensions of the image
     height, width = len(image), len(image[0])
