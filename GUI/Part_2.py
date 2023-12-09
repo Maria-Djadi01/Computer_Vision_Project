@@ -13,6 +13,7 @@ from Part_1.filters.mean_filter import mean_filter
 from Part_1.filters.median_filter import median_filter
 from Part_1.filters.morphologic_filter import erosion, dilation, opening, closing
 from Part_1.filters.sobel_filter import sobel_filter
+from Part_1.invisibility_cloak import invisibility_cloak
 
 # import Part_1.object_detection
 
@@ -222,7 +223,7 @@ button6 = tk.Button(
         erosion,
         kernel_size=int(erosion_kernel_size.get()),
         kernel_shape=erosion_kernel_shape.get(),
-        iterations=int(erosion_iterations.get())
+        iterations=int(erosion_iterations.get()),
     ),
 )
 button6.grid(row=6, column=0, padx=10, pady=10)
@@ -276,7 +277,7 @@ button7 = tk.Button(
         dilation,
         kernel_size=int(dilation_kernel_size.get()),
         kernel_shape=dilation_kernel_shape.get(),
-        iterations=int(dilation_iterations.get())
+        iterations=int(dilation_iterations.get()),
     ),
 )
 button7.grid(row=7, column=0, padx=10, pady=10)
@@ -328,7 +329,7 @@ button8 = tk.Button(
         opening,
         kernel_size=int(opening_kernel_size.get()),
         kernel_shape=opening_kernel_shape.get(),
-        iterations=int(opening_iterations.get())
+        iterations=int(opening_iterations.get()),
     ),
 )
 button8.grid(row=8, column=0, padx=10, pady=10)
@@ -382,7 +383,7 @@ button9 = tk.Button(
         closing,
         kernel_size=int(closing_kernel_size.get()),
         kernel_shape=closing_kernel_shape.get(),
-        iterations=int(closing_iterations.get())
+        iterations=int(closing_iterations.get()),
     ),
 )
 button9.grid(row=9, column=0, padx=10, pady=10)
@@ -459,12 +460,20 @@ button12 = tk.Button(
 )
 button12.grid(row=11, column=1, padx=10, pady=10)
 
+
+def run_invisibility_cloak():
+    cloak_instance = invisibility_cloak()
+    cloak_instance.run()
+
+
 button13 = tk.Button(
     right_frame,
     text="Invisibility Cloak",
     width=15,
+    command=run_invisibility_cloak(),
 )
 button13.grid(row=11, column=2, padx=10, pady=10)
+
 
 window_width = 970
 window_height = 700
