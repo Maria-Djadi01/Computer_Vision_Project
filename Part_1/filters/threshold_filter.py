@@ -1,6 +1,12 @@
 import numpy as np
 import cv2
 
+""" 
+parameters :
+    thresh_type : 'binary' | 'binary_inv' | 'trunc' | 'tozero' | 'tozero_inv'
+    threshold : in range (0, 255)
+"""
+
 def custom_threshold( img, threshold, thresh_type ) :
     height, width = img.shape
     
@@ -28,37 +34,3 @@ def custom_threshold( img, threshold, thresh_type ) :
         result_img = img.copy()
         result_img[img > threshold] = 0
         return result_img
-    
-
-img = cv2.imread( "img.png", 0 )
-
-custom = custom_threshold( img, 150, 'trunc' )
-with_cv = cv2.threshold( img, 150, 255, cv2.THRESH_TRUNC )[1]
-
-cv2.imshow( "image originale", img )
-cv2.imshow( "image filtre", custom )
-cv2.imshow( "image cv2", with_cv )
-
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
