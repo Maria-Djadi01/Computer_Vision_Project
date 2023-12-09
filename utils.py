@@ -3,7 +3,7 @@ import numpy as np
 import sys
 sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
 
-from Part_1.filters.Filtres_morphologiques import opening, closing
+from Part_1.filters.morphologic_filter import opening, closing
 
 def my_max(a, b):
     return np.maximum(a, b)
@@ -137,7 +137,7 @@ def my_inRange(img, lower_bound, upper_bound):
 def remove_noise(mask, kernel_size=3):
     dilation_kernel = np.ones((kernel_size, kernel_size), np.uint8)
 
-    mask_en = opening(mask, dilation_kernel)
+    mask_en = opening(mask, 3, 'cross')
 
     return mask_en
 
