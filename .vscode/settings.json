@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./Part_1/filters"
+    ]
+}
