@@ -2,6 +2,13 @@ import math
 import cv2
 import numpy as np
 
+"""
+parameters : 
+    kernel_size : odd numbers only.
+    kernel_shape : 'rect', 'cross', 'ellipse'.
+    iterations : optional, by default 1.
+"""
+
 # ------------------ Dilation
 def dilation( img, kernel_size, kernel_shape, iterations=1 ) :
     if kernel_shape == 'rect' :
@@ -25,34 +32,37 @@ def dilation( img, kernel_size, kernel_shape, iterations=1 ) :
     height, width = img.shape
     img_result = np.zeros( (height, width) )
 
-    i = 0
-    while i < height :
-        
-        j = 0
-        while j < width :
+    for iteration in range(iterations) :
+        i = 0
+        while i < height :
             
-            if img[i, j] == 255 :
+            j = 0
+            while j < width :
                 
-                h = 0
-                while h < kernel_size :
+                if img[i, j] == 255 :
                     
-                    w = 0
-                    while w < kernel_size :
+                    h = 0
+                    while h < kernel_size :
                         
-                        if kernel[h, w] == 1 :
-                            row = i - kernel_size // 2 + h
-                            col = j - kernel_size // 2 + w
-                            if(height>row>=0 and width>col>=0 ) :
-                                img_result[row, col] = 255
+                        w = 0
+                        while w < kernel_size :
                             
-                        w += 1
-                
-                    h += 1
+                            if kernel[h, w] == 1 :
+                                row = i - kernel_size // 2 + h
+                                col = j - kernel_size // 2 + w
+                                if(height>row>=0 and width>col>=0 ) :
+                                    img_result[row, col] = 255
+                                
+                            w += 1
                     
-            j += 1
-            
-        i += 1
-
+                        h += 1
+                        
+                j += 1
+                
+            i += 1
+         
+        img = img_result.copy()
+        
     return img_result
 
 # ------------------ Erosion
@@ -78,41 +88,44 @@ def erosion( img, kernel_size, kernel_shape, iterations=1 ) :
     height, width = img.shape
     img_result = np.zeros( (height, width) )
 
-    i = 0
-    while i < height :
-        
-        j = 0
-        while j < width :
+    for iteration in range(iterations) :
+        i = 0
+        while i < height :
             
-            if img[i, j] == 255 :
+            j = 0
+            while j < width :
                 
-                all_pixels_are_one = True
-                h = 0
-                while h < kernel_size :
+                if img[i, j] == 255 :
                     
-                    w = 0
-                    while w < kernel_size :
-                        if kernel[h, w] == 1 :
-                            row = i - kernel_size // 2 + h
-                            col = j - kernel_size // 2 + w
-                            if(height>row>=0 and width>col>=0) :
-                                if img[row, col] != 255 :
-                                    all_pixels_are_one = False
-                                    break
+                    all_pixels_are_one = True
+                    h = 0
+                    while h < kernel_size :
                         
-                        w += 1
+                        w = 0
+                        while w < kernel_size :
+                            if kernel[h, w] == 1 :
+                                row = i - kernel_size // 2 + h
+                                col = j - kernel_size // 2 + w
+                                if(height>row>=0 and width>col>=0) :
+                                    if img[row, col] != 255 :
+                                        all_pixels_are_one = False
+                                        break
+                            
+                            w += 1
+                    
+                        if not all_pixels_are_one:
+                            break
+                        
+                        h += 1
+                        
+                    if all_pixels_are_one :
+                        img_result[i, j] = 255
+                        
+                j += 1
                 
-                    if not all_pixels_are_one:
-                        break
-                    
-                    h += 1
-                    
-                if all_pixels_are_one :
-                    img_result[i, j] = 255
-                    
-            j += 1
-            
-        i += 1
+            i += 1
+         
+        img = img_result.copy()
 
     return img_result
 
@@ -123,7 +136,6 @@ def opening( img, kernel_size, kernel_shape, iterations=1 ) :
 # ------------------ Closing
 def closing( img, kernel_size, kernel_shape, iterations=1 ) :
     return erosion( dilation( img, kernel_size, kernel_shape, iterations=1 ), kernel_size, kernel_shape, iterations=1 )
-
 
 
 # ------------------ Test examples
@@ -146,10 +158,10 @@ kernel = np.array([[0, 0, 0, 0, 1, 0, 0, 0, 0],
        [0, 0, 0, 0, 1, 0, 0, 0, 0],
        [0, 0, 0, 0, 1, 0, 0, 0, 0]])
 
-img_result_dilation = dilation( img, 9, 'cross' )
-img_result_erosion = erosion( img, 9, 'cross' )
-img_result_opening = opening( img1, 9, 'cross' )
-img_result_closing = closing( img2, 9, 'cross' )
+img_result_dilation = dilation( img, 9, 'cross', iterations=2 )
+img_result_erosion = erosion( img, 9, 'cross', iterations=2 )
+img_result_opening = opening( img1, 9, 'cross', iterations=2 )
+img_result_closing = closing( img2, 9, 'cross', iterations=2 )
 
 cv2.imshow( "image originale", img )
 cv2.imshow( "image originale 1", img1 )
