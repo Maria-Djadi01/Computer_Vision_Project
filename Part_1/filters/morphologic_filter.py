@@ -124,7 +124,7 @@ def erosion( img, kernel_size, kernel_shape, iterations=1 ) :
                 j += 1
                 
             i += 1
-         
+
         img = img_result.copy()
 
     return img_result
@@ -132,7 +132,7 @@ def erosion( img, kernel_size, kernel_shape, iterations=1 ) :
 # ------------------ Opening
 def opening( img, kernel_size, kernel_shape, iterations=1 ) :
     return dilation( erosion( img, kernel_size, kernel_shape, iterations=1 ), kernel_size, kernel_shape, iterations=1 )
-    
+
 # ------------------ Closing
 def closing( img, kernel_size, kernel_shape, iterations=1 ) :
     return erosion( dilation( img, kernel_size, kernel_shape, iterations=1 ), kernel_size, kernel_shape, iterations=1 )
