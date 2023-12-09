@@ -1,21 +1,9 @@
 import cv2
 import numpy as np
+import sys
+sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
 
-
-# calculate the time of function call
-def timeit(func):
-    import time
-
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        func(*args, **kwargs)
-        end = time.time()
-        elapsed_time_ms = (end - start) * 1000
-
-        print(f"Time taken by {func.__name__} is {elapsed_time_ms:.2f} milliseconds")
-
-    return wrapper
-
+from Part_1.filters.Filtres_morphologiques import opening, closing
 
 def my_max(a, b):
     return np.maximum(a, b)
@@ -53,15 +41,16 @@ def my_shape(img, gray=True):
 
 
 def my_copy(img, gray=True):
-    # Get the dimensions of the image
     height = len(img)
     width = len(img[0])
 
     if gray:
+        # Create a 2D array
         copy = [[0] * width for _ in my_range(height)]
 
         for i in my_range(height):
             for j in my_range(width):
+                # Assign the grayscale value directly
                 copy[i][j] = img[i][j]
     else:
         channels = len(img[0][0])
@@ -71,10 +60,10 @@ def my_copy(img, gray=True):
         for i in my_range(height):
             for j in my_range(width):
                 for k in my_range(channels):
+                    # Assign the color values to the corresponding channels
                     copy[i][j][k] = img[i][j][k]
 
     return np.array(copy)
-
 
 def BGR2HSV_color(color):
     b, g, r = color[0], color[1], color[2]
@@ -116,19 +105,19 @@ def BGR2HSV(img):
     return hsv_image
 
 
-# def get_limits(hsv_color, h_limit, s_limit, v_limit):
-#     upper_bound = hsv_color[0] + h_limit, hsv_color[1] + s_limit, hsv_color[2] + v_limit
-#     lower_bound = hsv_color[0] - h_limit, hsv_color[1] - s_limit, hsv_color[2] - v_limit
+def get_limits(hsv_color, h_limit, s_limit, v_limit):
+    upper_bound = hsv_color[0] + h_limit, hsv_color[1] + s_limit, hsv_color[2] + v_limit
+    lower_bound = hsv_color[0] - h_limit, hsv_color[1] - s_limit, hsv_color[2] - v_limit
 
-#     return lower_bound, upper_bound
+    return lower_bound, upper_bound
 
 
 def my_inRange(img, lower_bound, upper_bound):
-    height, width, channels = my_shape(img, gray=False)
-    mask = my_copy(img, gray=False)
+    height, width, _ = my_shape(img, gray=False)
+    mask = np.zeros((height, width), np.uint8)
 
-    for i in my_range(height):
-        for j in my_range(width):
+    for i in range(height):
+        for j in range(width):
             if (
                 img[i, j][0] >= lower_bound[0]
                 and img[i, j][0] <= upper_bound[0]
@@ -140,39 +129,43 @@ def my_inRange(img, lower_bound, upper_bound):
                 mask[i, j] = 255
             else:
                 mask[i, j] = 0
-
     return mask
-
-def get_limits(hsv_color, h_limit, s_limit, v_limit):
-    lower_bound = np.array([max(0, hsv_color[0] - h_limit), max(0, hsv_color[1] - s_limit), max(0, hsv_color[2] - v_limit)])
-    upper_bound = np.array([min(255, hsv_color[0] + h_limit), min(255, hsv_color[1] + s_limit), min(255, hsv_color[2] + v_limit)])
-    return lower_bound, upper_bound
 
 # ---------------------------------------------------------------
 # Enhancement functions
 # ---------------------------------------------------------------
 def remove_noise(mask, kernel_size=3):
-    kernel = np.ones((kernel_size, kernel_size), np.uint8)
+    dilation_kernel = np.ones((kernel_size, kernel_size), np.uint8)
 
-    mask_en = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    mask_en = opening(mask, dilation_kernel)
 
     return mask_en
 
-def contour_filtering(binary_mask, min_area_threshold):
-    # Find contours in the binary mask
-    contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+def calculate_centroid(mask):
+    # Calculate image moments
+    moments = {'m00': 0, 'm10': 0, 'm01': 0}
 
-    # Filter contours based on area
-    filtered_contours = [contour for contour in contours if cv2.contourArea(contour) > min_area_threshold]
+    height, width = my_shape(mask)
+    for i in range(height):
+        row = mask[i]
+        for j in range(width):
+            if row[j] == 255:
+                moments['m00'] += 1
+                moments['m10'] += j
+                moments['m01'] += i
+    
+    centroid_x = int(moments['m10'] / moments['m00']) if moments['m00'] != 0 else 0
+    centroid_y = int(moments['m01'] / moments['m00']) if moments['m00'] != 0 else 0
+    
+    return (centroid_x, centroid_y)
 
-    # Create an empty mask to draw the filtered contours
-    filtered_mask = np.zeros_like(binary_mask)
-
-    # Draw the filtered contours on the mask
-    cv2.drawContours(filtered_mask, filtered_contours, -1, 1, thickness=cv2.FILLED)
-
-    return filtered_mask
-
+def get_points(mask):
+    points = []
+    for i in range(len(mask)):
+        for j in range(len(mask[0])):
+            if mask[i][j] == 255:
+                points.append((j, i))
+    return points
 # ----------------------------------------------------------------
 # Object detection function
 # ----------------------------------------------------------------
@@ -181,17 +174,11 @@ def detect_color_object(img, color, h_limit, s_limit, v_limit):
     hsv_color = cv2.cvtColor(np.uint8([[color]]), cv2.COLOR_BGR2HSV)[0][0]
     hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     lower_b, upper_b = get_limits(hsv_color, h_limit, s_limit, v_limit)
-    mask = cv2.inRange(hsv_img, lower_b, upper_b)
+    mask = my_inRange(hsv_img, lower_b, upper_b)
     mask = remove_noise(mask)
-    contours = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
-    contours = sorted(contours, key=lambda x: cv2.contourArea(x), reverse=True)
-    
-    points = []
-    for contour in contours:
-        if cv2.contourArea(contour):
-            (x, y), rayon = cv2.minEnclosingCircle(contour)
-            points.append((int(x), int(y)))
-    return img, mask, points
+    # calculate the centroid of the object
+    centroid_x, centroid_y = calculate_centroid(mask)
+    return img, mask, [[centroid_x, centroid_y]]
 
 
 # ----------------------------------------------------------------

@@ -18,14 +18,10 @@ desired_height = 120
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, desired_width)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, desired_height)
 i = 1
-# create a bar to change the min area threshold
-cv2.namedWindow("frame")
-cv2.createTrackbar("min_area", "frame", 0, 1000, lambda x: x)
-cv2.setTrackbarPos("min_area", "frame", 100)
 
 while True:
     ret, frame = cap.read()
-    if i <= 100:
+    if i <= 200:
         x = int(desired_width / 4)
         y = int(desired_height / 2)
         cv2.circle(frame, (x, y), 5, (0, 255, 0), 2)
@@ -42,5 +38,5 @@ while True:
     if cv2.waitKey(1) == ord("q"):
         break
 
-cv2.release()
 cv2.destroyAllWindows()
+cv2.release()

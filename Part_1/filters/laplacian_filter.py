@@ -4,12 +4,15 @@ sys.path.insert(0, "../../../Computer_Vision_Project")
 from utils import *
 
 
-def laplacian_filter(image):
+def laplacian_filter(image, kernel_size=3):
     # Get the dimensions of the image
     height, width = my_shape(image, gray=True)
 
-    # Define the Laplacian kernel
-    kernel = [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
+    # Build the kernel
+    kernel = np.ones((kernel_size, kernel_size), dtype=np.float32)
+    kernel *= -1
+    kernel[kernel_size // 2][kernel_size // 2] = kernel_size * kernel_size - 1
+
 
     # Apply convolution to the image
     filtered_image = my_copy(image)
