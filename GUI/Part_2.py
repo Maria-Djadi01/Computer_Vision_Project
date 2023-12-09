@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import *
+from tkinter import ttk
 from PIL import Image, ImageTk
 import cv2
 import numpy as np
@@ -13,7 +14,9 @@ from Part_1.filters.mean_filter import mean_filter
 from Part_1.filters.median_filter import median_filter
 from Part_1.filters.morphologic_filter import erosion, dilation, opening, closing
 from Part_1.filters.sobel_filter import sobel_filter
-from Part_1.invisibility_cloak import invisibility_cloak
+from Part_1.filters.threshold_filter import custom_threshold
+
+# from Part_1.invisibility_cloak import invisibility_cloak
 
 # import Part_1.object_detection
 
@@ -42,6 +45,8 @@ def apply_filter(
     vois=None,
     spatial_sigma=None,
     intensity_sigma=None,
+    threshold=None,
+    threshold_type=None,
 ):
     if filter in {gaussian_filter, laplacian_filter, sobel_filter}:
         img_filtered = filter(image)
@@ -50,7 +55,9 @@ def apply_filter(
     elif filter in {erosion, dilation, opening, closing}:
         img_filtered = filter(image, kernel_size, kernel_shape)
     elif filter == bilateral_filter:
-        img_filtered = filter(image, spatial_sigma, intensity_sigma)
+        img_filtered = filter(image, vois, spatial_sigma, intensity_sigma)
+    elif filter == custom_threshold:
+        img_filtered = filter(image, threshold, threshold_type)
     else:
         raise ValueError(f"Unsupported filter: {filter}")
 
@@ -88,10 +95,20 @@ right_frame.pack(side=LEFT, expand=True, fill="both", padx=10, pady=10)
 canvas_width = 250
 canvas_height = 250
 
-canvas1 = tk.Canvas(left_frame, width=canvas_width, height=canvas_height, bg="white")
+root_color = root.cget("bg")
+
+style = ttk.Style()
+style.configure("TButton", padding=6, relief="flat", background=root_color)
+style.configure("TLabel", padding=6, background=root_color)
+style.configure("TEntry", padding=6, relief="flat", background="white")
+
+optionmenu_style = ttk.Style()
+optionmenu_style.configure("TMenubutton", padding=(10, 6), relief="flat")
+
+canvas1 = tk.Canvas(left_frame, width=canvas_width, height=canvas_height, bg=root_color)
 canvas1.grid(row=0, column=1, padx=40, pady=10, rowspan=2)
 
-canvas2 = tk.Canvas(left_frame, width=canvas_width, height=canvas_height, bg="white")
+canvas2 = tk.Canvas(left_frame, width=canvas_width, height=canvas_height, bg=root_color)
 canvas2.grid(row=2, column=1, padx=40, pady=10, rowspan=2)
 
 
@@ -105,34 +122,33 @@ image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 # Create an image on canvas1
 canvas1.create_image(0, 0, anchor="nw", image=img)
 
-label = tk.Label(right_frame, text="Filters", font=("Helvetica", 16)).grid(
-    row=0, column=0, padx=10, pady=10
-)
+label = ttk.Label(right_frame, text="Filters", font=("Helvetica", 16))
+label.grid(row=0, column=0, padx=10, pady=10)
 
 # ------------------------------------------
 # Filters' Buttons
 # ------------------------------------------
 
-button1 = tk.Button(
+button1 = ttk.Button(
     right_frame,
     text="Gaussian",
     width=15,
     command=lambda: apply_filter(np.array(image), gaussian_filter),
 ).grid(row=1, column=0, padx=10, pady=10)
 
-button2 = tk.Button(
+button2 = ttk.Button(
     right_frame,
     text="Laplacian",
     width=15,
     command=lambda: apply_filter(np.array(image), laplacian_filter),
-).grid(row=2, column=0, padx=10, pady=10)
+).grid(row=1, column=1, padx=10, pady=10)
 
-button3 = tk.Button(
+button3 = ttk.Button(
     right_frame,
     text="Sobel",
     width=15,
     command=lambda: apply_filter(np.array(image), sobel_filter),
-).grid(row=3, column=0, padx=10, pady=10)
+).grid(row=1, column=2, padx=10, pady=10)
 
 
 mean_vois = tk.Entry(right_frame, width=15)
@@ -144,7 +160,7 @@ mean_vois.config(fg="grey")  # Set the text color to grey
 mean_vois.bind("<FocusIn>", lambda event, e=mean_vois: on_entry_click(e, "Neighbors"))
 mean_vois.bind("<FocusOut>", lambda event, e=mean_vois: on_focus_out(e, "Neighbors"))
 
-button4 = tk.Button(
+button4 = ttk.Button(
     right_frame,
     text="Mean",
     width=15,
@@ -166,7 +182,7 @@ median_vois.bind(
     "<FocusOut>", lambda event, e=median_vois: on_focus_out(e, "Neighbors")
 )
 
-button5 = tk.Button(
+button5 = ttk.Button(
     right_frame,
     text="Median",
     width=15,
@@ -189,21 +205,8 @@ erosion_kernel_size.bind(
     "<FocusOut>", lambda event, e=erosion_kernel_size: on_focus_out(e, "Kernel size")
 )
 
-erosion_kernel_shape = tk.Entry(right_frame, width=15)
-erosion_kernel_shape.grid(row=6, column=2, padx=10, pady=10)
-erosion_kernel_shape.insert(0, "Kernel shape")  # Set a placeholder
-erosion_kernel_shape.config(fg="grey")  # Set the text color to grey
-
-# Bind events to the entry to handle placeholder behavior
-erosion_kernel_shape.bind(
-    "<FocusIn>", lambda event, e=erosion_kernel_shape: on_entry_click(e, "Kernel shape")
-)
-erosion_kernel_shape.bind(
-    "<FocusOut>", lambda event, e=erosion_kernel_shape: on_focus_out(e, "Kernel shape")
-)
-
 erosion_iterations = tk.Entry(right_frame, width=15)
-erosion_iterations.grid(row=6, column=3, padx=10, pady=10)
+erosion_iterations.grid(row=6, column=2, padx=10, pady=10)
 erosion_iterations.insert(0, "Iterations")  # Set a placeholder
 erosion_iterations.config(fg="grey")  # Set the text color to grey
 
@@ -214,7 +217,19 @@ erosion_iterations.bind(
 erosion_iterations.bind(
     "<FocusOut>", lambda event, e=erosion_iterations: on_focus_out(e, "Iterations")
 )
-button6 = tk.Button(
+
+erosion_kernel_shape = ["rect", "cross", "ellipse"]
+# Create a StringVar to store the selected threshold type
+selected_ero_shape = StringVar()
+selected_ero_shape.set(erosion_kernel_shape[0])  # Set the default value
+# Create an OptionMenu with the styled theme
+ero_shape = ttk.OptionMenu(right_frame, selected_ero_shape, *erosion_kernel_shape)
+ero_shape.grid(row=6, column=3, padx=10, pady=10)
+
+# Set the background color for the OptionMenu
+ero_shape["menu"].config(bg="white")
+
+button6 = ttk.Button(
     right_frame,
     text="Erosion",
     width=15,
@@ -222,7 +237,7 @@ button6 = tk.Button(
         np.array(image),
         erosion,
         kernel_size=int(erosion_kernel_size.get()),
-        kernel_shape=erosion_kernel_shape.get(),
+        kernel_shape=ero_shape,
         iterations=int(erosion_iterations.get()),
     ),
 )
@@ -241,22 +256,8 @@ dilation_kernel_size.bind(
     "<FocusOut>", lambda event, e=dilation_kernel_size: on_focus_out(e, "Kernel size")
 )
 
-dilation_kernel_shape = tk.Entry(right_frame, width=15)
-dilation_kernel_shape.grid(row=7, column=2, padx=10, pady=10)
-dilation_kernel_shape.insert(0, "Kernel shape")  # Set a placeholder
-dilation_kernel_shape.config(fg="grey")  # Set the text color to grey
-
-# Bind events to the entry to handle placeholder behavior
-dilation_kernel_shape.bind(
-    "<FocusIn>",
-    lambda event, e=dilation_kernel_shape: on_entry_click(e, "Kernel shape"),
-)
-dilation_kernel_shape.bind(
-    "<FocusOut>", lambda event, e=dilation_kernel_shape: on_focus_out(e, "Kernel shape")
-)
-
 dilation_iterations = tk.Entry(right_frame, width=15)
-dilation_iterations.grid(row=7, column=3, padx=10, pady=10)
+dilation_iterations.grid(row=7, column=2, padx=10, pady=10)
 dilation_iterations.insert(0, "Iterations")  # Set a placeholder
 dilation_iterations.config(fg="grey")  # Set the text color to grey
 
@@ -268,7 +269,17 @@ dilation_iterations.bind(
     "<FocusOut>", lambda event, e=dilation_iterations: on_focus_out(e, "Iterations")
 )
 
-button7 = tk.Button(
+dilation_kernel_shape = ["rect", "cross", "ellipse"]
+# Create a StringVar to store the selected threshold type
+selected_dilo_shape = StringVar()
+selected_dilo_shape.set(dilation_kernel_shape[0])  # Set the default value
+# Create an ttk.OptionMenu with the threshold types
+dilo_shape = ttk.OptionMenu(right_frame, selected_dilo_shape, *dilation_kernel_shape)
+dilo_shape.grid(row=7, column=3, padx=10, pady=10)
+dilo_shape["menu"].config(bg="white")
+
+
+button7 = ttk.Button(
     right_frame,
     text="Dilation",
     width=15,
@@ -276,7 +287,7 @@ button7 = tk.Button(
         np.array(image),
         dilation,
         kernel_size=int(dilation_kernel_size.get()),
-        kernel_shape=dilation_kernel_shape.get(),
+        kernel_shape=dilo_shape,
         iterations=int(dilation_iterations.get()),
     ),
 )
@@ -295,21 +306,8 @@ opening_kernel_size.bind(
     "<FocusOut>", lambda event, e=opening_kernel_size: on_focus_out(e, "Kernel size")
 )
 
-opening_kernel_shape = tk.Entry(right_frame, width=15)
-opening_kernel_shape.grid(row=8, column=2, padx=10, pady=10)
-opening_kernel_shape.insert(0, "Kernel shape")  # Set a placeholder
-opening_kernel_shape.config(fg="grey")  # Set the text color to grey
-
-# Bind events to the entry to handle placeholder behavior
-opening_kernel_shape.bind(
-    "<FocusIn>", lambda event, e=opening_kernel_shape: on_entry_click(e, "Kernel shape")
-)
-opening_kernel_shape.bind(
-    "<FocusOut>", lambda event, e=opening_kernel_shape: on_focus_out(e, "Kernel shape")
-)
-
 opening_iterations = tk.Entry(right_frame, width=15)
-opening_iterations.grid(row=8, column=3, padx=10, pady=10)
+opening_iterations.grid(row=8, column=2, padx=10, pady=10)
 opening_iterations.insert(0, "Iterations")  # Set a placeholder
 opening_iterations.config(fg="grey")  # Set the text color to grey
 
@@ -320,7 +318,17 @@ opening_iterations.bind(
 opening_iterations.bind(
     "<FocusOut>", lambda event, e=opening_iterations: on_focus_out(e, "Iterations")
 )
-button8 = tk.Button(
+
+opening_kernel_shape = ["rect", "cross", "ellipse"]
+# Create a StringVar to store the selected threshold type
+selected_open_shape = StringVar()
+selected_open_shape.set(opening_kernel_shape[0])
+# Create an ttk.OptionMenu with the threshold types
+open_shape = ttk.OptionMenu(right_frame, selected_open_shape, *opening_kernel_shape)
+open_shape.grid(row=8, column=3, padx=10, pady=10)
+open_shape["menu"].config(bg="white")
+
+button8 = ttk.Button(
     right_frame,
     text="Opening",
     width=15,
@@ -347,22 +355,8 @@ closing_kernel_size.bind(
     "<FocusOut>", lambda event, e=closing_kernel_size: on_focus_out(e, "Kernel size")
 )
 
-closing_kernel_shape = tk.Entry(right_frame, width=15)
-closing_kernel_shape.grid(row=9, column=2, padx=10, pady=10)
-closing_kernel_shape.insert(0, "Kernel shape")  # Set a placeholder
-closing_kernel_shape.config(fg="grey")  # Set the text color to grey
-
-# Bind events to the entry to handle placeholder behavior
-closing_kernel_shape.bind(
-    "<FocusIn>",
-    lambda event, e=closing_kernel_shape: on_entry_click(e, "Kernel shape"),
-)
-closing_kernel_shape.bind(
-    "<FocusOut>", lambda event, e=closing_kernel_shape: on_focus_out(e, "Kernel shape")
-)
-
 closing_iterations = tk.Entry(right_frame, width=15)
-closing_iterations.grid(row=9, column=3, padx=10, pady=10)
+closing_iterations.grid(row=9, column=2, padx=10, pady=10)
 closing_iterations.insert(0, "Iterations")  # Set a placeholder
 closing_iterations.config(fg="grey")  # Set the text color to grey
 
@@ -374,7 +368,17 @@ closing_iterations.bind(
     "<FocusOut>", lambda event, e=closing_iterations: on_focus_out(e, "Iterations")
 )
 
-button9 = tk.Button(
+closing_kernel_shape = ["rect", "cross", "ellipse"]
+# Create a StringVar to store the selected threshold type
+selected_close_shape = StringVar()
+selected_close_shape.set(closing_kernel_shape[0])  # Set the default value
+# Create an ttk.OptionMenu with the threshold types
+close_shape = ttk.OptionMenu(right_frame, selected_close_shape, *closing_kernel_shape)
+close_shape.grid(row=9, column=3, padx=10, pady=10)
+close_shape["menu"].config(bg="white")
+
+
+button9 = ttk.Button(
     right_frame,
     text="Closing",
     width=15,
@@ -428,7 +432,7 @@ intensity_sigma.bind(
 )
 
 
-button10 = tk.Button(
+button10 = ttk.Button(
     right_frame,
     text="Bilateral",
     width=15,
@@ -442,37 +446,75 @@ button10 = tk.Button(
 )
 button10.grid(row=10, column=0, padx=10, pady=10)
 
+
+threshold = tk.Entry(right_frame, width=15)
+threshold.grid(row=11, column=1, padx=10, pady=10)
+threshold.insert(0, "Threshold")  # Set a placeholder
+threshold.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+threshold.bind("<FocusIn>", lambda event, e=threshold: on_entry_click(e, "Threshold"))
+threshold.bind("<FocusOut>", lambda event, e=threshold: on_focus_out(e, "Threshold"))
+
+
+threshold_types = ["binary", "binary_inv", "trunc", "tozero", "tozero_inv"]
+# Create a StringVar to store the selected threshold type
+selected_threshold_type = StringVar()
+selected_threshold_type.set(threshold_types[0])  # Set the default value
+# Create an ttk.OptionMenu with the threshold types
+thre_type = ttk.OptionMenu(right_frame, selected_threshold_type, *threshold_types)
+thre_type.grid(row=11, column=2, padx=10, pady=10)
+
+button11 = ttk.Button(
+    right_frame,
+    text="Threshold",
+    width=15,
+    command=lambda: apply_filter(
+        np.array(image),
+        custom_threshold,
+        threshold=int(threshold.get()),
+        threshold_type=thre_type,  # Use the selected threshold type
+    ),
+)
+button11.grid(row=11, column=0, padx=10, pady=10)
+
 # ------------------------------------------
 # Functions' Buttons
 # ------------------------------------------
 
-button11 = tk.Button(
+button12 = ttk.Button(
     right_frame,
     text="Object Detection",
     width=15,
 )
-button11.grid(row=11, column=0, padx=10, pady=10)
+button12.grid(row=12, column=0, padx=10, pady=10)
 
-button12 = tk.Button(
+button13 = ttk.Button(
     right_frame,
     text="Green Screen",
     width=15,
 )
-button12.grid(row=11, column=1, padx=10, pady=10)
+button13.grid(row=12, column=1, padx=10, pady=10)
 
 
-def run_invisibility_cloak():
-    cloak_instance = invisibility_cloak()
-    cloak_instance.run()
+# def run_invisibility_cloak():
+#     cloak_instance = invisibility_cloak()
+#     cloak_instance.run()
 
 
-button13 = tk.Button(
+button13 = ttk.Button(
     right_frame,
     text="Invisibility Cloak",
     width=15,
-    command=run_invisibility_cloak(),
 )
-button13.grid(row=11, column=2, padx=10, pady=10)
+button13.grid(row=12, column=2, padx=10, pady=10)
+
+button12 = ttk.Button(
+    right_frame,
+    text="Brick Race Game",
+    width=15,
+)
+button12.grid(row=13, column=1, padx=10, pady=10)
 
 
 window_width = 970

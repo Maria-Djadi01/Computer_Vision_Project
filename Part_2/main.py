@@ -1,14 +1,16 @@
 import tkinter as tk
 import sys
-sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
+
+sys.path.insert(0, r"C:\Users\HI\My-Github\Computer_Vision_Project")
 from Part_2.game import Game
+
 
 class GameLauncher(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.title("Game Launcher")
         self.geometry("300x200")
-        
+
         self.create_widgets()
 
     def create_widgets(self):
@@ -49,6 +51,7 @@ class GameLauncher(tk.Tk):
         except ValueError:
             print("Please enter valid numeric values for dimensions.")
 
-if __name__ == "__main__":
-    app = GameLauncher()
-    app.mainloop()
+
+# if __name__ == "__main__":
+#     app = GameLauncher()
+#     app.mainloop()
