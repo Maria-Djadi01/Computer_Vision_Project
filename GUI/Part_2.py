@@ -11,7 +11,7 @@ from Part_1.filters.Gaussian_filter import gaussian_filter
 from Part_1.filters.laplacian_filter import laplacian_filter
 from Part_1.filters.mean_filter import mean_filter
 from Part_1.filters.median_filter import median_filter
-from Part_1.filters.morphologic_filter import erosion, dilation
+from Part_1.filters.morphologic_filter import erosion, dilation, opening, closing
 from Part_1.filters.sobel_filter import sobel_filter
 
 # import Part_1.object_detection
@@ -37,6 +37,7 @@ def apply_filter(
     filter,
     kernel_size=None,
     kernel_shape=None,
+    iterations=None,
     vois=None,
     spatial_sigma=None,
     intensity_sigma=None,
@@ -45,7 +46,7 @@ def apply_filter(
         img_filtered = filter(image)
     elif filter in {mean_filter, median_filter}:
         img_filtered = filter(image, vois)
-    elif filter in {erosion, dilation}:
+    elif filter in {erosion, dilation, opening, closing}:
         img_filtered = filter(image, kernel_size, kernel_shape)
     elif filter == bilateral_filter:
         img_filtered = filter(image, spatial_sigma, intensity_sigma)
@@ -199,6 +200,19 @@ erosion_kernel_shape.bind(
 erosion_kernel_shape.bind(
     "<FocusOut>", lambda event, e=erosion_kernel_shape: on_focus_out(e, "Kernel shape")
 )
+
+erosion_iterations = tk.Entry(right_frame, width=15)
+erosion_iterations.grid(row=6, column=3, padx=10, pady=10)
+erosion_iterations.insert(0, "Iterations")  # Set a placeholder
+erosion_iterations.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+erosion_iterations.bind(
+    "<FocusIn>", lambda event, e=erosion_iterations: on_entry_click(e, "Iterations")
+)
+erosion_iterations.bind(
+    "<FocusOut>", lambda event, e=erosion_iterations: on_focus_out(e, "Iterations")
+)
 button6 = tk.Button(
     right_frame,
     text="Erosion",
@@ -208,6 +222,7 @@ button6 = tk.Button(
         erosion,
         kernel_size=int(erosion_kernel_size.get()),
         kernel_shape=erosion_kernel_shape.get(),
+        iterations=int(erosion_iterations.get())
     ),
 )
 button6.grid(row=6, column=0, padx=10, pady=10)
@@ -239,6 +254,19 @@ dilation_kernel_shape.bind(
     "<FocusOut>", lambda event, e=dilation_kernel_shape: on_focus_out(e, "Kernel shape")
 )
 
+dilation_iterations = tk.Entry(right_frame, width=15)
+dilation_iterations.grid(row=7, column=3, padx=10, pady=10)
+dilation_iterations.insert(0, "Iterations")  # Set a placeholder
+dilation_iterations.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+dilation_iterations.bind(
+    "<FocusIn>", lambda event, e=dilation_iterations: on_entry_click(e, "Iterations")
+)
+dilation_iterations.bind(
+    "<FocusOut>", lambda event, e=dilation_iterations: on_focus_out(e, "Iterations")
+)
+
 button7 = tk.Button(
     right_frame,
     text="Dilation",
@@ -248,12 +276,119 @@ button7 = tk.Button(
         dilation,
         kernel_size=int(dilation_kernel_size.get()),
         kernel_shape=dilation_kernel_shape.get(),
+        iterations=int(dilation_iterations.get())
     ),
 )
 button7.grid(row=7, column=0, padx=10, pady=10)
 
+opening_kernel_size = tk.Entry(right_frame, width=15)
+opening_kernel_size.grid(row=8, column=1, padx=10, pady=10)
+opening_kernel_size.insert(0, "Kernel size")  # Set a placeholder
+opening_kernel_size.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+opening_kernel_size.bind(
+    "<FocusIn>", lambda event, e=opening_kernel_size: on_entry_click(e, "Kernel size")
+)
+opening_kernel_size.bind(
+    "<FocusOut>", lambda event, e=opening_kernel_size: on_focus_out(e, "Kernel size")
+)
+
+opening_kernel_shape = tk.Entry(right_frame, width=15)
+opening_kernel_shape.grid(row=8, column=2, padx=10, pady=10)
+opening_kernel_shape.insert(0, "Kernel shape")  # Set a placeholder
+opening_kernel_shape.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+opening_kernel_shape.bind(
+    "<FocusIn>", lambda event, e=opening_kernel_shape: on_entry_click(e, "Kernel shape")
+)
+opening_kernel_shape.bind(
+    "<FocusOut>", lambda event, e=opening_kernel_shape: on_focus_out(e, "Kernel shape")
+)
+
+opening_iterations = tk.Entry(right_frame, width=15)
+opening_iterations.grid(row=8, column=3, padx=10, pady=10)
+opening_iterations.insert(0, "Iterations")  # Set a placeholder
+opening_iterations.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+opening_iterations.bind(
+    "<FocusIn>", lambda event, e=opening_iterations: on_entry_click(e, "Iterations")
+)
+opening_iterations.bind(
+    "<FocusOut>", lambda event, e=opening_iterations: on_focus_out(e, "Iterations")
+)
+button8 = tk.Button(
+    right_frame,
+    text="Opening",
+    width=15,
+    command=lambda: apply_filter(
+        np.array(image),
+        opening,
+        kernel_size=int(opening_kernel_size.get()),
+        kernel_shape=opening_kernel_shape.get(),
+        iterations=int(opening_iterations.get())
+    ),
+)
+button8.grid(row=8, column=0, padx=10, pady=10)
+
+closing_kernel_size = tk.Entry(right_frame, width=15)
+closing_kernel_size.grid(row=9, column=1, padx=10, pady=10)
+closing_kernel_size.insert(0, "Kernel size")  # Set a placeholder
+closing_kernel_size.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+closing_kernel_size.bind(
+    "<FocusIn>", lambda event, e=closing_kernel_size: on_entry_click(e, "Kernel size")
+)
+closing_kernel_size.bind(
+    "<FocusOut>", lambda event, e=closing_kernel_size: on_focus_out(e, "Kernel size")
+)
+
+closing_kernel_shape = tk.Entry(right_frame, width=15)
+closing_kernel_shape.grid(row=9, column=2, padx=10, pady=10)
+closing_kernel_shape.insert(0, "Kernel shape")  # Set a placeholder
+closing_kernel_shape.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+closing_kernel_shape.bind(
+    "<FocusIn>",
+    lambda event, e=closing_kernel_shape: on_entry_click(e, "Kernel shape"),
+)
+closing_kernel_shape.bind(
+    "<FocusOut>", lambda event, e=closing_kernel_shape: on_focus_out(e, "Kernel shape")
+)
+
+closing_iterations = tk.Entry(right_frame, width=15)
+closing_iterations.grid(row=9, column=3, padx=10, pady=10)
+closing_iterations.insert(0, "Iterations")  # Set a placeholder
+closing_iterations.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+closing_iterations.bind(
+    "<FocusIn>", lambda event, e=closing_iterations: on_entry_click(e, "Iterations")
+)
+closing_iterations.bind(
+    "<FocusOut>", lambda event, e=closing_iterations: on_focus_out(e, "Iterations")
+)
+
+button9 = tk.Button(
+    right_frame,
+    text="Closing",
+    width=15,
+    command=lambda: apply_filter(
+        np.array(image),
+        closing,
+        kernel_size=int(closing_kernel_size.get()),
+        kernel_shape=closing_kernel_shape.get(),
+        iterations=int(closing_iterations.get())
+    ),
+)
+button9.grid(row=9, column=0, padx=10, pady=10)
+
 bilateral_vois = tk.Entry(right_frame, width=15)
-bilateral_vois.grid(row=8, column=1, padx=10, pady=10)
+bilateral_vois.grid(row=10, column=1, padx=10, pady=10)
 bilateral_vois.insert(0, "Neighbors")  # Set a placeholder
 bilateral_vois.config(fg="grey")  # Set the text color to grey
 
@@ -266,7 +401,7 @@ bilateral_vois.bind(
 )
 
 spatial_sigma = tk.Entry(right_frame, width=15)
-spatial_sigma.grid(row=8, column=2, padx=10, pady=10)
+spatial_sigma.grid(row=10, column=2, padx=10, pady=10)
 spatial_sigma.insert(0, "Spatial Sigma")  # Set a placeholder
 spatial_sigma.config(fg="grey")  # Set the text color to grey
 
@@ -279,7 +414,7 @@ spatial_sigma.bind(
 )
 
 intensity_sigma = tk.Entry(right_frame, width=15)
-intensity_sigma.grid(row=8, column=3, padx=10, pady=10)
+intensity_sigma.grid(row=10, column=3, padx=10, pady=10)
 intensity_sigma.insert(0, "Intensity Sigma")  # Set a placeholder
 intensity_sigma.config(fg="grey")  # Set the text color to grey
 
@@ -292,7 +427,7 @@ intensity_sigma.bind(
 )
 
 
-button8 = tk.Button(
+button10 = tk.Button(
     right_frame,
     text="Bilateral",
     width=15,
@@ -304,34 +439,35 @@ button8 = tk.Button(
         intensity_sigma=int(intensity_sigma.get()),
     ),
 )
-button8.grid(row=8, column=0, padx=10, pady=10)
+button10.grid(row=10, column=0, padx=10, pady=10)
 
 # ------------------------------------------
 # Functions' Buttons
 # ------------------------------------------
 
-button10 = tk.Button(
+button11 = tk.Button(
     right_frame,
     text="Object Detection",
     width=15,
 )
-button10.grid(row=10, column=0, padx=10, pady=10)
+button11.grid(row=11, column=0, padx=10, pady=10)
 
-button10 = tk.Button(
+button12 = tk.Button(
     right_frame,
     text="Green Screen",
     width=15,
 )
-button10.grid(row=10, column=1, padx=10, pady=10)
-button10 = tk.Button(
+button12.grid(row=11, column=1, padx=10, pady=10)
+
+button13 = tk.Button(
     right_frame,
     text="Invisibility Cloak",
     width=15,
 )
-button10.grid(row=10, column=2, padx=10, pady=10)
+button13.grid(row=11, column=2, padx=10, pady=10)
 
-window_width = 850
-window_height = 600
+window_width = 970
+window_height = 700
 root.geometry(f"{window_width}x{window_height}")
 
 root.mainloop()
