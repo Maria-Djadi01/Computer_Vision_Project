@@ -14,6 +14,8 @@ from Part_1.filters.median_filter import median_filter
 from Part_1.filters.morphologic_filter import erosion, dilation
 from Part_1.filters.sobel_filter import sobel_filter
 
+# import Part_1.object_detection
+
 
 def load_and_resize_image(path, size):
     # Try to read the image
@@ -30,8 +32,26 @@ def load_and_resize_image(path, size):
     return ImageTk.PhotoImage(Image.fromarray(resized_image))
 
 
-def apply_filter(image, filter):
-    img_filtered = filter(image)
+def apply_filter(
+    image,
+    filter,
+    kernel_size=None,
+    kernel_shape=None,
+    vois=None,
+    spatial_sigma=None,
+    intensity_sigma=None,
+):
+    if filter in {gaussian_filter, laplacian_filter, sobel_filter}:
+        img_filtered = filter(image)
+    elif filter in {mean_filter, median_filter}:
+        img_filtered = filter(image, vois)
+    elif filter in {erosion, dilation}:
+        img_filtered = filter(image, kernel_size, kernel_shape)
+    elif filter == bilateral_filter:
+        img_filtered = filter(image, spatial_sigma, intensity_sigma)
+    else:
+        raise ValueError(f"Unsupported filter: {filter}")
+
     img_filtered_resized = cv2.resize(
         img_filtered, (canvas_width, canvas_height), interpolation=cv2.INTER_AREA
     )
@@ -41,14 +61,26 @@ def apply_filter(image, filter):
     canvas2.image = img_filtered_tk
 
 
+def on_entry_click(entry, placeholder):
+    if entry.get() == placeholder:
+        entry.delete(0, "end")  # Delete the default placeholder text
+        entry.insert(0, "")  # Set the text color to black
+
+
+def on_focus_out(entry, placeholder):
+    if entry.get() == "":
+        entry.insert(0, placeholder)  # If no text was entered, set placeholder back
+        entry.config(fg="grey")  # Set the text color to grey
+
+
 root = tk.Tk()
 root.title("Computer Vision Project")
 
 left_frame = Frame(root)
 left_frame.pack(side=LEFT)
 
-right_frame = Frame(root, bg="red")
-right_frame.pack(side=RIGHT)
+right_frame = Frame(root)
+right_frame.pack(side=LEFT, expand=True, fill="both", padx=10, pady=10)
 
 # Define the canvas size
 canvas_width = 250
@@ -71,76 +103,234 @@ image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 # Create an image on canvas1
 canvas1.create_image(0, 0, anchor="nw", image=img)
 
-label = tk.Label(right_frame, text="Filters", font=("Helvetica", 16))
-label.grid(row=0, column=0, padx=10, pady=10)
+label = tk.Label(right_frame, text="Filters", font=("Helvetica", 16)).grid(
+    row=0, column=0, padx=10, pady=10
+)
 
-# Buttons
-# button1 = tk.Button(
-#     right_frame,
-#     text="Mean",
-#     width=15,
-#     command=lambda: apply_filter(np.array(image), mean_filter),
-# )
-# button1.grid(row=0, column=2, padx=10, pady=10)
+# ------------------------------------------
+# Filters' Buttons
+# ------------------------------------------
 
-
-# button2 = tk.Button(
-#     right_frame,
-#     text="Median",
-#     width=15,
-#     command=lambda: apply_filter(np.array(image), median_filter),
-# )
-# button2.grid(row=0, column=3, padx=10, pady=10)
-
-button4 = tk.Button(
+button1 = tk.Button(
     right_frame,
     text="Gaussian",
     width=15,
     command=lambda: apply_filter(np.array(image), gaussian_filter),
-)
-button4.grid(row=0, column=1, padx=10, pady=10)
+).grid(row=1, column=0, padx=10, pady=10)
 
-button3 = tk.Button(
+button2 = tk.Button(
     right_frame,
     text="Laplacian",
     width=15,
     command=lambda: apply_filter(np.array(image), laplacian_filter),
-)
-button3.grid(row=0, column=1, padx=10, pady=10)
+).grid(row=2, column=0, padx=10, pady=10)
 
-# button5 = tk.Button(
-#     right_frame,
-#     text="Morphologie",
-#     width=15,
-#     command=lambda: apply_filter(np.array(image), morphologic_filter),
-# )
-# button5.grid(row=1, column=3, padx=10, pady=10)
-
-# button6 = tk.Button(
-#     right_frame,
-#     text="Bilateral",
-#     width=15,
-#     command=lambda: apply_filter(np.array(image), bilateral_filter),
-# )
-# button6.grid(row=1, column=4, padx=10, pady=10)
-
-button7 = tk.Button(
+button3 = tk.Button(
     right_frame,
     text="Sobel",
     width=15,
     command=lambda: apply_filter(np.array(image), sobel_filter),
+).grid(row=3, column=0, padx=10, pady=10)
+
+
+mean_vois = tk.Entry(right_frame, width=15)
+mean_vois.grid(row=4, column=1, padx=10, pady=10)
+mean_vois.insert(0, "Neighbors")  # Set a placeholder
+mean_vois.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+mean_vois.bind("<FocusIn>", lambda event, e=mean_vois: on_entry_click(e, "Neighbors"))
+mean_vois.bind("<FocusOut>", lambda event, e=mean_vois: on_focus_out(e, "Neighbors"))
+
+button4 = tk.Button(
+    right_frame,
+    text="Mean",
+    width=15,
+    command=lambda: apply_filter(
+        np.array(image), mean_filter, vois=int(mean_vois.get())
+    ),
+).grid(row=4, column=0, padx=10, pady=10)
+
+median_vois = tk.Entry(right_frame, width=15)
+median_vois.grid(row=5, column=1, padx=10, pady=10)
+median_vois.insert(0, "Neighbors")  # Set a placeholder
+median_vois.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+median_vois.bind(
+    "<FocusIn>", lambda event, e=median_vois: on_entry_click(e, "Neighbors")
 )
-button7.grid(row=2, column=3, padx=10, pady=10)
+median_vois.bind(
+    "<FocusOut>", lambda event, e=median_vois: on_focus_out(e, "Neighbors")
+)
 
-# button8 = tk.Button(
-#     right_frame,
-#     text="Object Detection",
-#     width=15,
-#     command=,
-# )
-# button8.grid(row=2, column=3, padx=10, pady=10)
+button5 = tk.Button(
+    right_frame,
+    text="Median",
+    width=15,
+    command=lambda: apply_filter(
+        np.array(image), median_filter, vois=int(median_vois.get())
+    ),
+)
+button5.grid(row=5, column=0, padx=10, pady=10)
 
-window_width = 800
+erosion_kernel_size = tk.Entry(right_frame, width=15)
+erosion_kernel_size.grid(row=6, column=1, padx=10, pady=10)
+erosion_kernel_size.insert(0, "Kernel size")  # Set a placeholder
+erosion_kernel_size.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+erosion_kernel_size.bind(
+    "<FocusIn>", lambda event, e=erosion_kernel_size: on_entry_click(e, "Kernel size")
+)
+erosion_kernel_size.bind(
+    "<FocusOut>", lambda event, e=erosion_kernel_size: on_focus_out(e, "Kernel size")
+)
+
+erosion_kernel_shape = tk.Entry(right_frame, width=15)
+erosion_kernel_shape.grid(row=6, column=2, padx=10, pady=10)
+erosion_kernel_shape.insert(0, "Kernel shape")  # Set a placeholder
+erosion_kernel_shape.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+erosion_kernel_shape.bind(
+    "<FocusIn>", lambda event, e=erosion_kernel_shape: on_entry_click(e, "Kernel shape")
+)
+erosion_kernel_shape.bind(
+    "<FocusOut>", lambda event, e=erosion_kernel_shape: on_focus_out(e, "Kernel shape")
+)
+button6 = tk.Button(
+    right_frame,
+    text="Erosion",
+    width=15,
+    command=lambda: apply_filter(
+        np.array(image),
+        erosion,
+        kernel_size=int(erosion_kernel_size.get()),
+        kernel_shape=erosion_kernel_shape.get(),
+    ),
+)
+button6.grid(row=6, column=0, padx=10, pady=10)
+
+dilation_kernel_size = tk.Entry(right_frame, width=15)
+dilation_kernel_size.grid(row=7, column=1, padx=10, pady=10)
+dilation_kernel_size.insert(0, "Kernel size")  # Set a placeholder
+dilation_kernel_size.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+dilation_kernel_size.bind(
+    "<FocusIn>", lambda event, e=dilation_kernel_size: on_entry_click(e, "Kernel size")
+)
+dilation_kernel_size.bind(
+    "<FocusOut>", lambda event, e=dilation_kernel_size: on_focus_out(e, "Kernel size")
+)
+
+dilation_kernel_shape = tk.Entry(right_frame, width=15)
+dilation_kernel_shape.grid(row=7, column=2, padx=10, pady=10)
+dilation_kernel_shape.insert(0, "Kernel shape")  # Set a placeholder
+dilation_kernel_shape.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+dilation_kernel_shape.bind(
+    "<FocusIn>",
+    lambda event, e=dilation_kernel_shape: on_entry_click(e, "Kernel shape"),
+)
+dilation_kernel_shape.bind(
+    "<FocusOut>", lambda event, e=dilation_kernel_shape: on_focus_out(e, "Kernel shape")
+)
+
+button7 = tk.Button(
+    right_frame,
+    text="Dilation",
+    width=15,
+    command=lambda: apply_filter(
+        np.array(image),
+        dilation,
+        kernel_size=int(dilation_kernel_size.get()),
+        kernel_shape=dilation_kernel_shape.get(),
+    ),
+)
+button7.grid(row=7, column=0, padx=10, pady=10)
+
+bilateral_vois = tk.Entry(right_frame, width=15)
+bilateral_vois.grid(row=8, column=1, padx=10, pady=10)
+bilateral_vois.insert(0, "Neighbors")  # Set a placeholder
+bilateral_vois.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+bilateral_vois.bind(
+    "<FocusIn>", lambda event, e=bilateral_vois: on_entry_click(e, "Neighbors")
+)
+bilateral_vois.bind(
+    "<FocusOut>", lambda event, e=bilateral_vois: on_focus_out(e, "Neighbors")
+)
+
+spatial_sigma = tk.Entry(right_frame, width=15)
+spatial_sigma.grid(row=8, column=2, padx=10, pady=10)
+spatial_sigma.insert(0, "Spatial Sigma")  # Set a placeholder
+spatial_sigma.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+spatial_sigma.bind(
+    "<FocusIn>", lambda event, e=spatial_sigma: on_entry_click(e, "Spatial Sigma")
+)
+spatial_sigma.bind(
+    "<FocusOut>", lambda event, e=spatial_sigma: on_focus_out(e, "Spatial Sigma")
+)
+
+intensity_sigma = tk.Entry(right_frame, width=15)
+intensity_sigma.grid(row=8, column=3, padx=10, pady=10)
+intensity_sigma.insert(0, "Intensity Sigma")  # Set a placeholder
+intensity_sigma.config(fg="grey")  # Set the text color to grey
+
+# Bind events to the entry to handle placeholder behavior
+intensity_sigma.bind(
+    "<FocusIn>", lambda event, e=intensity_sigma: on_entry_click(e, "Intensity Sigma")
+)
+intensity_sigma.bind(
+    "<FocusOut>", lambda event, e=intensity_sigma: on_focus_out(e, "Intensity Sigma")
+)
+
+
+button8 = tk.Button(
+    right_frame,
+    text="Bilateral",
+    width=15,
+    command=lambda: apply_filter(
+        np.array(image),
+        bilateral_filter,
+        vois=int(bilateral_vois.get()),
+        spatial_sigma=int(spatial_sigma.get()),
+        intensity_sigma=int(intensity_sigma.get()),
+    ),
+)
+button8.grid(row=8, column=0, padx=10, pady=10)
+
+# ------------------------------------------
+# Functions' Buttons
+# ------------------------------------------
+
+button10 = tk.Button(
+    right_frame,
+    text="Object Detection",
+    width=15,
+)
+button10.grid(row=10, column=0, padx=10, pady=10)
+
+button10 = tk.Button(
+    right_frame,
+    text="Green Screen",
+    width=15,
+)
+button10.grid(row=10, column=1, padx=10, pady=10)
+button10 = tk.Button(
+    right_frame,
+    text="Invisibility Cloak",
+    width=15,
+)
+button10.grid(row=10, column=2, padx=10, pady=10)
+
+window_width = 850
 window_height = 600
 root.geometry(f"{window_width}x{window_height}")
 

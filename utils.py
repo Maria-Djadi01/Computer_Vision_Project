@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 import sys
+
 sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
 
-from Part_1.filters.Filtres_morphologiques import opening, closing
 
 def my_max(a, b):
     return np.maximum(a, b)
@@ -65,6 +65,7 @@ def my_copy(img, gray=True):
 
     return np.array(copy)
 
+
 def BGR2HSV_color(color):
     b, g, r = color[0], color[1], color[2]
 
@@ -93,6 +94,7 @@ def BGR2HSV_color(color):
     v = int((v / 255) * 255)
 
     return h, s, v
+
 
 def BGR2HSV(img):
     height, width, channels = my_shape(img, gray=False)
@@ -131,6 +133,7 @@ def my_inRange(img, lower_bound, upper_bound):
                 mask[i, j] = 0
     return mask
 
+
 # ---------------------------------------------------------------
 # Enhancement functions
 # ---------------------------------------------------------------
@@ -141,23 +144,25 @@ def remove_noise(mask, kernel_size=3):
 
     return mask_en
 
+
 def calculate_centroid(mask):
     # Calculate image moments
-    moments = {'m00': 0, 'm10': 0, 'm01': 0}
+    moments = {"m00": 0, "m10": 0, "m01": 0}
 
     height, width = my_shape(mask)
     for i in range(height):
         row = mask[i]
         for j in range(width):
             if row[j] == 255:
-                moments['m00'] += 1
-                moments['m10'] += j
-                moments['m01'] += i
-    
-    centroid_x = int(moments['m10'] / moments['m00']) if moments['m00'] != 0 else 0
-    centroid_y = int(moments['m01'] / moments['m00']) if moments['m00'] != 0 else 0
-    
+                moments["m00"] += 1
+                moments["m10"] += j
+                moments["m01"] += i
+
+    centroid_x = int(moments["m10"] / moments["m00"]) if moments["m00"] != 0 else 0
+    centroid_y = int(moments["m01"] / moments["m00"]) if moments["m00"] != 0 else 0
+
     return (centroid_x, centroid_y)
+
 
 def get_points(mask):
     points = []
@@ -166,9 +171,12 @@ def get_points(mask):
             if mask[i][j] == 255:
                 points.append((j, i))
     return points
+
+
 # ----------------------------------------------------------------
 # Object detection function
 # ----------------------------------------------------------------
+
 
 def detect_color_object(img, color, h_limit, s_limit, v_limit):
     hsv_color = cv2.cvtColor(np.uint8([[color]]), cv2.COLOR_BGR2HSV)[0][0]
