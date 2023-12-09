@@ -1,8 +1,9 @@
 from utils import *
 
-def meanFilter(img, neighborhood):
+
+def mean_filter(img, neighborhood):
     h, w = len(img), len(img[0])
-    
+
     imgMoy = np.zeros((h, w))
 
     for y in my_range(h):
@@ -23,14 +24,14 @@ def meanFilter(img, neighborhood):
     return np.array(imgMoy, dtype=np.uint8)
 
 
-img = cv2.imread('assets/link.jpg', cv2.IMREAD_GRAYSCALE)
-img = cv2.resize(img, (400, 400))
-cv2.imshow("Original Image", img)
+# img = cv2.imread("assets/link.jpg", cv2.IMREAD_GRAYSCALE)
+# img = cv2.resize(img, (400, 400))
+# cv2.imshow("Original Image", img)
 
-cv2.imshow("Filtered Image1", meanFilter(img, 3))
-# cv2.imshow("Filtered Image2", gaussian_filter(img))
+# cv2.imshow("Filtered Image1", meanFilter(img, 3))
+# # cv2.imshow("Filtered Image2", gaussian_filter(img))
 
 
-# cv2.imshow(" Filtered Image", sobel_filter(img))
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# # cv2.imshow(" Filtered Image", sobel_filter(img))
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
