@@ -1,3 +1,14 @@
+import sys
+import os
+
+# Get the project's root directory
+project_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+# Add the project's root directory to sys.path
+sys.path.insert(0, project_directory)
+
+from utils import *
+
 def laplacian_filter(image, kernel_size=3):
     """
     Apply the Laplacian filter to an image.
