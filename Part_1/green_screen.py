@@ -63,7 +63,8 @@ class GreenScreen:
 
         # Load the background image
         back = cv2.imread(self.background)
-        back = cv2.resize(back, (self.cap_width, self.cap_height))
+        frame = cap.read()[1]
+        back = cv2.resize(back, (my_shape(frame, gray=False)[1], my_shape(frame, gray=False)[0]))
 
         i = 1
         while True:
