@@ -514,7 +514,6 @@ button12.grid(row=12, column=0, padx=10, pady=10)
 def run_green_screen():
     green_screen = GreenScreen("D:/2M/Vision/Computer_Vision_Project/back.jpg")
 
-    img_path = os.path.join(project_directory, 'back.jpg')
     green_screen = GreenScreen(img_path)
     green_screen.run()
 
