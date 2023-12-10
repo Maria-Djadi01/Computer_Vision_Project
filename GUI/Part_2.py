@@ -17,6 +17,10 @@ from Part_1.filters.sobel_filter import sobel_filter
 from Part_1.filters.threshold_filter import custom_threshold
 
 from Part_1.invisibility_cloak import invisibility_cloak
+from Part_1.object_detection import ObjectDetector
+from Part_1.green_screen import GreenScreen
+from Part_2.game import Game
+
 
 # import Part_1.object_detection
 
@@ -482,17 +486,30 @@ button11.grid(row=11, column=0, padx=10, pady=10)
 # Functions' Buttons
 # ------------------------------------------
 
+
+def run_object_detection():
+    object_detection = ObjectDetector()
+    object_detection.run()
+
+
 button12 = ttk.Button(
     right_frame,
     text="Object Detection",
     width=15,
+    command=lambda: run_object_detection(),
 )
 button12.grid(row=12, column=0, padx=10, pady=10)
 
+
+def run_green_screen():
+    green_screen = GreenScreen(
+        r"C:\Users\HI\My-Github\Computer_Vision_Project\back.jpg"
+    )
+    green_screen.run()
+
+
 button13 = ttk.Button(
-    right_frame,
-    text="Green Screen",
-    width=15,
+    right_frame, text="Green Screen", width=15, command=lambda: run_green_screen()
 )
 button13.grid(row=12, column=1, padx=10, pady=10)
 
@@ -506,14 +523,18 @@ button13 = ttk.Button(
     right_frame,
     text="Invisibility Cloak",
     width=15,
-    command=lambda: run_invisibility_cloak()
+    command=lambda: run_invisibility_cloak(),
 )
 button13.grid(row=12, column=2, padx=10, pady=10)
 
+
+def run_game():
+    game = Game(360, 540)
+    game.run()
+
+
 button12 = ttk.Button(
-    right_frame,
-    text="Brick Race Game",
-    width=15,
+    right_frame, text="Brick Race Game", width=15, command=lambda: run_game()
 )
 button12.grid(row=13, column=1, padx=10, pady=10)
 

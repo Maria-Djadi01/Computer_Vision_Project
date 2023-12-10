@@ -142,7 +142,7 @@ def my_inRange(img, lower_bound, upper_bound):
 def remove_noise(mask, kernel_size=3):
     dilation_kernel = np.ones((kernel_size, kernel_size), np.uint8)
 
-    mask_en = opening(mask, 3, "cross")
+    mask_en = opening(mask, 3, "cross", 1)
 
     return mask_en
 
