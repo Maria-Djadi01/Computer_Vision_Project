@@ -528,13 +528,13 @@ threshold.bind("<FocusOut>", lambda event, e=threshold: on_focus_out(e, "Thresho
 
 threshold_types = ["binary", "binary_inv", "trunc", "tozero", "tozero_inv"]
 selected_threshold_type = tk.StringVar()
-selected_threshold_type.set(closing_kernel_shape[0])
+selected_threshold_type.set(threshold_types[0])
 
 # Create a custom Combobox with the styled theme
 thre_type = ttk.Combobox(
     right_frame,
     textvariable=selected_threshold_type,
-    values=closing_kernel_shape,
+    values=threshold_types,
     style="TCombobox",
 )
 thre_type.grid(row=11, column=2, padx=10, pady=10)
