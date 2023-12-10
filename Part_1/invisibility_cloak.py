@@ -6,7 +6,6 @@ warnings.filterwarnings('ignore')
 
 sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
 from Part_1.filters.morphologic_filter import closing
-from utils import detect_color_object
 
 class invisibility_cloak:
     def BGR2HSV_color(self, color):
