@@ -2,27 +2,41 @@ import sys
 import cv2
 import numpy as np
 
-sys.path.insert(0, "../../Computer_Vision_Project")
+sys.path.insert(0, "../../../Computer_Vision_Project")
 
-# from utils import my_copy
+from utils import *
 
 
 def my_copy(img, gray=True):
+    """
+    Create a copy of the input image.
+
+    Parameters:
+    - img (numpy.ndarray): The input image.
+    - gray (bool): Flag indicating whether the image is grayscale. Default is True.
+
+    Returns:
+    - numpy.ndarray: A copy of the input image.
+    """
     # Get the dimensions of the image
-    height = len(img)
-    width = len(img[0])
+    height, width = img.shape[:2]
 
     if gray:
+        # Create a 2D array for grayscale image (filled with zeros)
         copy = [[0] * width for _ in range(height)]
 
+        # Copy pixel values
         for i in range(height):
             for j in range(width):
                 copy[i][j] = img[i][j]
     else:
+        # Determine the number of color channels
         channels = len(img[0][0])
 
+        # Create a 3D array for color image
         copy = [[[0] * channels for _ in range(width)] for _ in range(height)]
 
+        # Copy pixel values for each channel
         for i in range(height):
             for j in range(width):
                 for k in range(channels):
@@ -32,13 +46,26 @@ def my_copy(img, gray=True):
 
 
 def gaussian_filter(img):
+    """
+    Apply a Gaussian filter to the input grayscale image.
+
+    Parameters:
+    - img (numpy.ndarray): The input grayscale image.
+
+    Returns:
+    - numpy.ndarray: The image after applying the Gaussian filter.
+    """
+    # Get the dimensions of the image
     height, width = img.shape
 
-    kernel = np.array([[1, 2, 1], [2, 4, 4], [1, 2, 1]])
+    # Define the Gaussian kernel
+    kernel = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]])
     kernel = kernel / 16
 
+    # Create a copy of the input image
     img2 = my_copy(img)
 
+    # Apply the Gaussian filter to the image
     for y in range(1, height - 1):
         for x in range(1, width - 1):
             new_value = (
@@ -53,6 +80,7 @@ def gaussian_filter(img):
                 + kernel[2][2] * img[y + 1, x + 1]
             )
 
+            # Clip the pixel value to the valid range [0, 255]
             img2[y, x] = max(0, min(255, new_value))
 
     return np.array(img2)
