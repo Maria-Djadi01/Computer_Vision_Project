@@ -110,12 +110,15 @@ class invisibility_cloak:
             return_val, background = capture_video.read()
         if return_val:
             background = np.flip(background, axis=1)
+            height, width, _ = background.shape
+            background = cv2.resize( background, (256,256) )
 
         while capture_video.isOpened():
             return_val, img = capture_video.read()
             if not return_val:
                 break
             img = np.flip(img, axis=1)
+            img = cv2.resize( img, (256,256) )
 
             hue_range = (70, 100)  # blue
             colored_object_mask = self.object_color_detection(img, hue_range)
@@ -126,6 +129,7 @@ class invisibility_cloak:
             image_to_show = self.and_operation(img, colored_object_mask_inverse)
 
             final_output = self.sum_arrays(background_to_show, image_to_show)
+            final_output = cv2.resize( final_output, (width, height) )
 
             cv2.imshow("Invisibility Cloak", final_output)
             if cv2.waitKey(1) & 0xFF == ord("q"):
