@@ -5,8 +5,15 @@ from PIL import Image, ImageTk
 import cv2
 import numpy as np
 import sys
+import os
 
-sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
+# sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
+# Get the project's root directory
+project_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+# Add the project's root directory to sys.path
+sys.path.insert(0, project_directory)
+
 from Part_1.filters.bilateral_filter import bilateral_filter
 from Part_1.filters.Gaussian_filter import gaussian_filter
 from Part_1.filters.laplacian_filter import laplacian_filter
@@ -52,9 +59,14 @@ def apply_filter(
     threshold=None,
     threshold_type=None,
 ):
-    image = cv2.resize(
-        image, (canvas_width, canvas_height), interpolation=cv2.INTER_AREA
-    )
+    # image = cv2.resize(
+    #     image, (canvas_width, canvas_height), interpolation=cv2.INTER_AREA
+    # )
+
+    global imageF  # Use the global variable
+
+    # Resize the image
+    image = cv2.resize(imageF, (canvas_width, canvas_height), interpolation=cv2.INTER_AREA)
 
     if filter in {gaussian_filter, laplacian_filter, sobel_filter}:
         img_filtered = filter(image)
@@ -119,16 +131,60 @@ canvas1.grid(row=0, column=1, padx=40, pady=10, rowspan=2)
 canvas2 = tk.Canvas(left_frame, width=canvas_width, height=canvas_height, bg=root_color)
 canvas2.grid(row=2, column=1, padx=40, pady=10, rowspan=2)
 
+#=====================================================
 
-# Load and resize the image to fit the canvas
-img_path = r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project\\GUI\\img.jpg"
+# Create a list of image filenames
+image_filenames = ["img.jpg"]  
+
+# Create a StringVar to store the selected image filename
+selected_image = StringVar()
+selected_image.set(image_filenames[0])  # Set the default value
+
+# Create a ComboBox with the image options
+image_combobox = ttk.Combobox(right_frame, textvariable=selected_image, values=image_filenames)
+image_combobox.grid(row=0, column=1, padx=10, pady=10)
+
+img_path = os.path.join(project_directory, 'GUI', selected_image.get())
 img_size = (canvas_width, canvas_height)
 img = load_and_resize_image(img_path, img_size)
 
-image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-
-# Create an image on canvas1
+imageF = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 canvas1.create_image(0, 0, anchor="nw", image=img)
+
+def update_image(event):
+    img_path = os.path.join(project_directory, 'GUI', selected_image.get())
+    img_size = (canvas_width, canvas_height)
+    img = load_and_resize_image(img_path, img_size)
+
+    # Delete the previous image on canvas1
+    canvas1.delete("all")
+
+    # Create an image on canvas1
+    canvas1.create_image(0, 0, anchor="nw", image=img)
+
+    canvas1.image = img
+
+    # Update the imageF variable used in filtering functions
+    global imageF
+    imageF = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+
+
+image_combobox.bind("<<ComboboxSelected>>", update_image)
+
+#=====================================================
+
+
+# Load and resize the image to fit the canvas
+# img_path = r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project\\GUI\\img.jpg"
+# img_path = os.path.join(project_directory, 'GUI', 'img.jpg')
+
+# img_size = (canvas_width, canvas_height)
+# img = load_and_resize_image(img_path, img_size)
+
+# image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+
+# # Create an image on canvas1
+# canvas1.create_image(0, 0, anchor="nw", image=img)
 
 label = ttk.Label(right_frame, text="Filters", font=("Helvetica", 16))
 label.grid(row=0, column=0, padx=10, pady=10)
@@ -141,21 +197,21 @@ button1 = ttk.Button(
     right_frame,
     text="Gaussian",
     width=15,
-    command=lambda: apply_filter(np.array(image), gaussian_filter),
+    command=lambda: apply_filter(np.array(imageF), gaussian_filter),
 ).grid(row=1, column=0, padx=10, pady=10)
 
 button2 = ttk.Button(
     right_frame,
     text="Laplacian",
     width=15,
-    command=lambda: apply_filter(np.array(image), laplacian_filter),
+    command=lambda: apply_filter(np.array(imageF), laplacian_filter),
 ).grid(row=1, column=1, padx=10, pady=10)
 
 button3 = ttk.Button(
     right_frame,
     text="Sobel",
     width=15,
-    command=lambda: apply_filter(np.array(image), sobel_filter),
+    command=lambda: apply_filter(np.array(imageF), sobel_filter),
 ).grid(row=1, column=2, padx=10, pady=10)
 
 
@@ -173,7 +229,7 @@ button4 = ttk.Button(
     text="Mean",
     width=15,
     command=lambda: apply_filter(
-        np.array(image), mean_filter, vois=int(mean_vois.get())
+        np.array(imageF), mean_filter, vois=int(mean_vois.get())
     ),
 ).grid(row=4, column=0, padx=10, pady=10)
 
@@ -195,7 +251,7 @@ button5 = ttk.Button(
     text="Median",
     width=15,
     command=lambda: apply_filter(
-        np.array(image), median_filter, vois=int(median_vois.get())
+        np.array(imageF), median_filter, vois=int(median_vois.get())
     ),
 )
 button5.grid(row=5, column=0, padx=10, pady=10)
@@ -242,7 +298,7 @@ button6 = ttk.Button(
     text="Erosion",
     width=15,
     command=lambda: apply_filter(
-        np.array(image),
+        np.array(imageF),
         erosion,
         kernel_size=int(erosion_kernel_size.get()),
         kernel_shape=selected_ero_shape.get(),
@@ -292,7 +348,7 @@ button7 = ttk.Button(
     text="Dilation",
     width=15,
     command=lambda: apply_filter(
-        np.array(image),
+        np.array(imageF),
         dilation,
         kernel_size=int(dilation_kernel_size.get()),
         kernel_shape=selected_dilo_shape.get(),
@@ -341,7 +397,7 @@ button8 = ttk.Button(
     text="Opening",
     width=15,
     command=lambda: apply_filter(
-        np.array(image),
+        np.array(imageF),
         opening,
         kernel_size=int(opening_kernel_size.get()),
         kernel_shape=selected_open_shape.get(),
@@ -391,7 +447,7 @@ button9 = ttk.Button(
     text="Closing",
     width=15,
     command=lambda: apply_filter(
-        np.array(image),
+        np.array(imageF),
         closing,
         kernel_size=int(closing_kernel_size.get()),
         kernel_shape=selected_close_shape.get(),
@@ -445,7 +501,7 @@ button10 = ttk.Button(
     text="Bilateral",
     width=15,
     command=lambda: apply_filter(
-        np.array(image),
+        np.array(imageF),
         bilateral_filter,
         vois=int(bilateral_vois.get()),
         spatial_sigma=int(spatial_sigma.get()),
@@ -478,7 +534,7 @@ button11 = ttk.Button(
     text="Threshold",
     width=15,
     command=lambda: apply_filter(
-        np.array(image),
+        np.array(imageF),
         custom_threshold,
         threshold=int(threshold.get()),
         threshold_type=selected_threshold_type.get(),  # Use the selected threshold type
@@ -510,11 +566,11 @@ button12.grid(row=12, column=0, padx=10, pady=10)
 #         r"C:\Users\HI\My-Github\Computer_Vision_Project\back.jpg"
 #     )
 #     green_screen.run()
+back_path = os.path.join(project_directory, 'back.jpg')
 
 def run_green_screen():
-    green_screen = GreenScreen("D:/2M/Vision/Computer_Vision_Project/back.jpg")
-
-    green_screen = GreenScreen(img_path)
+    # green_screen = GreenScreen("D:/2M/Vision/Computer_Vision_Project/back.jpg")
+    green_screen = GreenScreen(back_path)
     green_screen.run()
 
 
