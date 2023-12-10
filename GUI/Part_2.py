@@ -505,7 +505,7 @@ button10 = ttk.Button(
         bilateral_filter,
         vois=int(bilateral_vois.get()),
         spatial_sigma=int(spatial_sigma.get()),
-        intensity_sigma=int(intensity_sigma.get()),
+        intensity_sigma=float(intensity_sigma.get()),
     ),
 )
 button10.grid(row=10, column=0, padx=10, pady=10)
