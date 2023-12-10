@@ -473,7 +473,7 @@ button11 = ttk.Button(
         np.array(image),
         custom_threshold,
         threshold=int(threshold.get()),
-        threshold_type=thre_type,  # Use the selected threshold type
+        threshold_type=selected_threshold_type.get(),  # Use the selected threshold type
     ),
 )
 button11.grid(row=11, column=0, padx=10, pady=10)
