@@ -6,7 +6,8 @@ import cv2
 import numpy as np
 import sys
 
-sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
+# sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
+sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
 from Part_1.filters.bilateral_filter import bilateral_filter
 from Part_1.filters.Gaussian_filter import gaussian_filter
 from Part_1.filters.laplacian_filter import laplacian_filter
@@ -117,7 +118,8 @@ canvas2.grid(row=2, column=1, padx=40, pady=10, rowspan=2)
 
 
 # Load and resize the image to fit the canvas
-img_path = r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project\\GUI\\img.jpg"
+# img_path = r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project\\GUI\\img.jpg"
+img_path = "D:\\2M\Vision\Computer_Vision_Project\Part_1\img.jpg"
 img_size = (canvas_width, canvas_height)
 img = load_and_resize_image(img_path, img_size)
 
@@ -502,10 +504,10 @@ button12.grid(row=12, column=0, padx=10, pady=10)
 
 
 def run_green_screen():
-    green_screen = GreenScreen(
-        r"C:\Users\HI\My-Github\Computer_Vision_Project\back.jpg"
-    )
+    green_screen = GreenScreen("D:/2M/Vision/Computer_Vision_Project/back.jpg")
+
     green_screen.run()
+
 
 
 button13 = ttk.Button(
