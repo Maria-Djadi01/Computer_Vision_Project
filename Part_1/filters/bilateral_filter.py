@@ -24,7 +24,7 @@ def bilateral_filter(image, neighborhood_size, spatial_sigma, intensity_sigma):
                         #calculer la difference spatiale (distance) entre le pixel et son voisin
                         spatial_diff = (i**2 + j**2)**0.5
                         #calculer la difference d'intensite du pixel et de son voisin 
-                        intensity_diff = abs(image[y, x] - image[neighbor_y, neighbor_x])
+                        intensity_diff = abs(float(image[y, x]) - float(image[neighbor_y, neighbor_x]))
 
                         #fonction gaussienne avec hyperparametre sigma_s comme parametre (2.71828 = e) 
                         spatial_weight = 2.71828**(-(spatial_diff**2) / (2 * spatial_sigma**2))
