@@ -53,7 +53,7 @@ def apply_filter(
     elif filter in {mean_filter, median_filter}:
         img_filtered = filter(image, vois)
     elif filter in {erosion, dilation, opening, closing}:
-        img_filtered = filter(image, kernel_size, kernel_shape)
+        img_filtered = filter(image, kernel_size, kernel_shape, iterations)
     elif filter == bilateral_filter:
         img_filtered = filter(image, vois, spatial_sigma, intensity_sigma)
     elif filter == custom_threshold:
@@ -519,7 +519,7 @@ button12.grid(row=13, column=1, padx=10, pady=10)
 
 
 window_width = 970
-window_height = 700
+window_height = 750
 root.geometry(f"{window_width}x{window_height}")
 
 root.mainloop()
