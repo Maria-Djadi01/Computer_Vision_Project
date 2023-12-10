@@ -2,14 +2,14 @@ from utils import *
 
 
 def sobel_filter(image):
-    # Get the dimensions of the image
+    # Obtenir les dimensions de l'image
     height, width = len(image), len(image[0])
 
     # Define the Sobel kernels for horizontal and vertical edges
     sobel_x = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
     sobel_y = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
 
-    # Apply convolution to the image for horizontal edges
+    # convolution pour les contours horizontaux
     edges_x = [[0] * width for _ in my_range(height)]
     for i in my_range(height - 1, start=1):
         for j in my_range(width - 1, start=1):
@@ -26,7 +26,7 @@ def sobel_filter(image):
             )
             edges_x[i][j] = pixel_value
 
-    # Apply convolution to the image for vertical edges
+   # convolution pour les contours vericaux
     edges_y = [[0] * width for _ in my_range(height)]
     for i in my_range(height - 1, start=1):
         for j in my_range(width - 1, start=1):
@@ -43,7 +43,7 @@ def sobel_filter(image):
             )
             edges_y[i][j] = pixel_value
 
-    # Compute the gradient magnitude
+    # Calcul du gradient
     gradient_magnitude = [[((edges_x[i][j])**2 + (edges_y[i][j])**2)**0.5 for j in my_range(width - 1, start=1)] for i in my_range(height - 1, start=1)]
 
     return np.array(gradient_magnitude, dtype=np.uint8)

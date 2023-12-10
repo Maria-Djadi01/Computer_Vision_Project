@@ -2,8 +2,10 @@ import cv2
 import sys
 import numpy as np
 import random
+import os
 
-sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
+project_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, project_directory)
 
 from utils import detect_color_object
 from Part_2.car import Car
@@ -11,7 +13,9 @@ from Part_2.obstacle import Obstacle
 
 
 class Game:
-    def __init__(self, game_frame_width, game_frame_height, cap_width=320, cap_height=180):
+    def __init__(
+        self, game_frame_width, game_frame_height, cap_width=320, cap_height=180
+    ):
         """
         Initialize the game.
 
@@ -63,8 +67,10 @@ class Game:
         height = self.game_frame_height - 1
 
         # Make sure the car dowsn't go out of the frame
-        left_margin = self.car.width // 2 + self.obstacle_width // 2
-        right_margin = int(self.game_frame_width - self.car.width // 2 - 10)
+        right_margin = self.game_frame_width - (
+            self.car.width // 2 + self.obstacle_width // 2
+        )
+        left_margin = 20
         obstacle_hit = False
 
         while True:
@@ -76,7 +82,7 @@ class Game:
             )
 
             # Detect the color
-            if i <= 100:
+            if i <= 200:
                 # Display a message to place an object in a circle for color detection
                 # Update color variable after a certain number of frames
                 # Show the video frame with instructions
@@ -94,7 +100,7 @@ class Game:
                     0.5,
                     (0, 0, 255),
                     1,
-                ) 
+                )
                 cv2.putText(
                     frame,
                     # write a flipped message
@@ -104,7 +110,7 @@ class Game:
                     0.5,
                     (0, 0, 255),
                     1,
-                ) 
+                )
                 b, g, r = tuple(frame[y, x])
                 cv2.imshow("frame", frame)
                 i += 1
@@ -135,7 +141,6 @@ class Game:
 
                 else:
                     # Display a message if no object is detected
-                    car_pos = previous_car_pos
                     cv2.putText(
                         frame,
                         "No object detected",
@@ -145,13 +150,23 @@ class Game:
                         (0, 0, 255),
                         2,
                     )
+                    car_pos = previous_car_pos
+                    # Keyboard controls
+                    key = cv2.waitKeyEx(1)
+                    if key == 2424832:
+                        car_pos -= 10
+                    elif key == 2555904:
+                        car_pos += 10
+                    previous_car_pos = car_pos
+
+                # Draw the car
+                self.car.draw(game_frame, car_pos)
 
                 # Ensure the car stays within the frame margins
-                car_pos = max(left_margin, car_pos)
+                car_pos = max(left_margin, car_pos + self.cap_width)
+                # mark the right margin with red border
                 car_pos = min(right_margin, car_pos)
-
-                # Draw the car on the game frame
-                game_frame = self.car.draw(game_frame, car_pos)
+                # Mark the left margin with red border
 
                 # if there is no obstacle we create a new one
                 if len(list_obstacles) == 0:
@@ -206,7 +221,6 @@ class Game:
                 cv2.imshow("frame", frame)
                 cv2.imshow("game_frame", game_frame)
 
-            
             if obstacle_hit:
                 cv2.putText(
                     game_frame,
@@ -222,7 +236,10 @@ class Game:
                 cv2.putText(
                     game_frame,
                     f"Your score is: {score}",
-                    (self.game_frame_width // 2 - 100, self.game_frame_height // 2 + 50),
+                    (
+                        self.game_frame_width // 2 - 100,
+                        self.game_frame_height // 2 + 50,
+                    ),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.5,
                     (0, 0, 255),
@@ -239,8 +256,8 @@ class Game:
         cv2.destroyAllWindows()
 
 
-if __name__ == "__main__":
-    game = Game(
-        cap_width=320, cap_height=180, game_frame_width=300, game_frame_height=540
-    )
-    game.run()
+# if __name__ == "__main__":
+#     game = Game(
+#         cap_width=320, cap_height=180, game_frame_width=300, game_frame_height=540
+#     )
+#     game.run()

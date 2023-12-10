@@ -1,11 +1,16 @@
 import numpy as np
 import cv2
 import sys
+import warnings
+import os
 
-# sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
-sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
+warnings.filterwarnings("ignore")
+
+
+project_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, project_directory)
+
 from Part_1.filters.morphologic_filter import closing
-from utils import detect_color_object
 
 
 class invisibility_cloak:
@@ -64,8 +69,8 @@ class invisibility_cloak:
         return result
 
     def object_color_detection(self, img, hue_range):
-        hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        # hsv_img = BGR2HSV( img )
+        # hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        hsv_img = self.BGR2HSV(img)
 
         lower_bound = np.array([hue_range[0], 50, 50])
         upper_bound = np.array([hue_range[1], 255, 255])
@@ -111,14 +116,14 @@ class invisibility_cloak:
         if return_val:
             background = np.flip(background, axis=1)
             height, width, _ = background.shape
-            background = cv2.resize( background, (256,256) )
+            background = cv2.resize(background, (256, 256))
 
         while capture_video.isOpened():
             return_val, img = capture_video.read()
             if not return_val:
                 break
             img = np.flip(img, axis=1)
-            img = cv2.resize( img, (256,256) )
+            img = cv2.resize(img, (256, 256))
 
             hue_range = (70, 100)  # blue
             colored_object_mask = self.object_color_detection(img, hue_range)
@@ -129,7 +134,7 @@ class invisibility_cloak:
             image_to_show = self.and_operation(img, colored_object_mask_inverse)
 
             final_output = self.sum_arrays(background_to_show, image_to_show)
-            final_output = cv2.resize( final_output, (width, height) )
+            final_output = cv2.resize(final_output, (width, height))
 
             cv2.imshow("Invisibility Cloak", final_output)
             if cv2.waitKey(1) & 0xFF == ord("q"):

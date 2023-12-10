@@ -2,10 +2,6 @@ import sys
 import cv2
 import numpy as np
 
-sys.path.insert(0, "../../../Computer_Vision_Project")
-
-from utils import *
-
 
 def my_copy(img, gray=True):
     """
