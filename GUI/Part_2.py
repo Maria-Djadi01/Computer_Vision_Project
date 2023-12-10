@@ -134,7 +134,7 @@ canvas2.grid(row=2, column=1, padx=40, pady=10, rowspan=2)
 #=====================================================
 
 # Create a list of image filenames
-image_filenames = ["img.jpg"]  
+image_filenames = ["img.jpg", "img_morphologic.png"]  
 
 # Create a StringVar to store the selected image filename
 selected_image = StringVar()
