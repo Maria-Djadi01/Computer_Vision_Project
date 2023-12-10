@@ -63,8 +63,8 @@ class Game:
         height = self.game_frame_height - 1
 
         # Make sure the car dowsn't go out of the frame
-        left_margin = self.car.width // 2 + self.obstacle_width // 2
-        right_margin = int(self.game_frame_width - self.car.width // 2 - 10)
+        right_margin = self.game_frame_width - (self.car.width // 2 + self.obstacle_width // 2)
+        left_margin = 20
         obstacle_hit = False
 
         while True:
@@ -76,7 +76,7 @@ class Game:
             )
 
             # Detect the color
-            if i <= 100:
+            if i <= 200:
                 # Display a message to place an object in a circle for color detection
                 # Update color variable after a certain number of frames
                 # Show the video frame with instructions
@@ -135,7 +135,6 @@ class Game:
 
                 else:
                     # Display a message if no object is detected
-                    car_pos = previous_car_pos
                     cv2.putText(
                         frame,
                         "No object detected",
@@ -145,13 +144,23 @@ class Game:
                         (0, 0, 255),
                         2,
                     )
+                    car_pos = previous_car_pos
+                    # Keyboard controls
+                    key = cv2.waitKeyEx(1)
+                    if key == 2424832:
+                        car_pos -= 10
+                    elif key == 2555904:
+                        car_pos += 10
+                    previous_car_pos = car_pos
+                    
+                # Draw the car
+                self.car.draw(game_frame, car_pos)
 
                 # Ensure the car stays within the frame margins
-                car_pos = max(left_margin, car_pos)
+                car_pos = max(left_margin, car_pos + self.cap_width)
+                # mark the right margin with red border
                 car_pos = min(right_margin, car_pos)
-
-                # Draw the car on the game frame
-                game_frame = self.car.draw(game_frame, car_pos)
+                # Mark the left margin with red border
 
                 # if there is no obstacle we create a new one
                 if len(list_obstacles) == 0:

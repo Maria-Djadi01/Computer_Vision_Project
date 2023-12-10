@@ -5,16 +5,8 @@ from PIL import Image, ImageTk
 import cv2
 import numpy as np
 import sys
-import os
 
-# sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
-
-# Get the project's root directory
-project_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-
-# Add the project's root directory to sys.path
-sys.path.insert(0, project_directory)
-
+sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
 from Part_1.filters.bilateral_filter import bilateral_filter
 from Part_1.filters.Gaussian_filter import gaussian_filter
 from Part_1.filters.laplacian_filter import laplacian_filter
@@ -129,9 +121,7 @@ canvas2.grid(row=2, column=1, padx=40, pady=10, rowspan=2)
 
 
 # Load and resize the image to fit the canvas
-# img_path = r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project\\GUI\\img.jpg"
-img_path = os.path.join(project_directory, 'GUI', 'img.jpg')
-
+img_path = r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project\\GUI\\img.jpg"
 img_size = (canvas_width, canvas_height)
 img = load_and_resize_image(img_path, img_size)
 
@@ -522,7 +512,8 @@ button12.grid(row=12, column=0, padx=10, pady=10)
 #     green_screen.run()
 
 def run_green_screen():
-    img_path = os.path.join(project_directory, 'back.jpg')
+    green_screen = GreenScreen("D:/2M/Vision/Computer_Vision_Project/back.jpg")
+
     green_screen = GreenScreen(img_path)
     green_screen.run()
 
