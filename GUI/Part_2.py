@@ -6,8 +6,7 @@ import cv2
 import numpy as np
 import sys
 
-# sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
-sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
+sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
 from Part_1.filters.bilateral_filter import bilateral_filter
 from Part_1.filters.Gaussian_filter import gaussian_filter
 from Part_1.filters.laplacian_filter import laplacian_filter
@@ -53,6 +52,10 @@ def apply_filter(
     threshold=None,
     threshold_type=None,
 ):
+    image = cv2.resize(
+        image, (canvas_width, canvas_height), interpolation=cv2.INTER_AREA
+    )
+
     if filter in {gaussian_filter, laplacian_filter, sobel_filter}:
         img_filtered = filter(image)
     elif filter in {mean_filter, median_filter}:
@@ -66,10 +69,10 @@ def apply_filter(
     else:
         raise ValueError(f"Unsupported filter: {filter}")
 
-    img_filtered_resized = cv2.resize(
-        img_filtered, (canvas_width, canvas_height), interpolation=cv2.INTER_AREA
-    )
-    img_filtered_tk = ImageTk.PhotoImage(Image.fromarray(img_filtered_resized))
+    # img_filtered_resized = cv2.resize(
+    #     img_filtered, (canvas_width, canvas_height), interpolation=cv2.INTER_AREA
+    # )
+    img_filtered_tk = ImageTk.PhotoImage(Image.fromarray(img_filtered))
     canvas2.config(width=canvas_width, height=canvas_height)
     canvas2.create_image(0, 0, anchor="nw", image=img_filtered_tk)
     canvas2.image = img_filtered_tk
@@ -118,8 +121,7 @@ canvas2.grid(row=2, column=1, padx=40, pady=10, rowspan=2)
 
 
 # Load and resize the image to fit the canvas
-# img_path = r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project\\GUI\\img.jpg"
-img_path = "D:\\2M\Vision\Computer_Vision_Project\Part_1\img.jpg"
+img_path = r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project\\GUI\\img.jpg"
 img_size = (canvas_width, canvas_height)
 img = load_and_resize_image(img_path, img_size)
 
@@ -503,9 +505,17 @@ button12 = ttk.Button(
 button12.grid(row=12, column=0, padx=10, pady=10)
 
 
+# def run_green_screen():
+#     green_screen = GreenScreen(
+#         r"C:\Users\HI\My-Github\Computer_Vision_Project\back.jpg"
+#     )
+#     green_screen.run()
+
 def run_green_screen():
     green_screen = GreenScreen("D:/2M/Vision/Computer_Vision_Project/back.jpg")
 
+    img_path = os.path.join(project_directory, 'back.jpg')
+    green_screen = GreenScreen(img_path)
     green_screen.run()
 
 

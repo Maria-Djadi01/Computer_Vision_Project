@@ -1,12 +1,11 @@
 import numpy as np
 import cv2
 import sys
+import warnings
+warnings.filterwarnings('ignore')
 
-# sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
 sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
 from Part_1.filters.morphologic_filter import closing
-from utils import detect_color_object
-
 
 class invisibility_cloak:
     def BGR2HSV_color(self, color):
@@ -64,8 +63,8 @@ class invisibility_cloak:
         return result
 
     def object_color_detection(self, img, hue_range):
-        hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        # hsv_img = BGR2HSV( img )
+        # hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        hsv_img = self.BGR2HSV( img )
 
         lower_bound = np.array([hue_range[0], 50, 50])
         upper_bound = np.array([hue_range[1], 255, 255])
