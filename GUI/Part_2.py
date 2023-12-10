@@ -237,7 +237,7 @@ button6 = ttk.Button(
         np.array(image),
         erosion,
         kernel_size=int(erosion_kernel_size.get()),
-        kernel_shape=ero_shape,
+        kernel_shape=selected_ero_shape.get(),
         iterations=int(erosion_iterations.get()),
     ),
 )
@@ -287,7 +287,7 @@ button7 = ttk.Button(
         np.array(image),
         dilation,
         kernel_size=int(dilation_kernel_size.get()),
-        kernel_shape=dilo_shape,
+        kernel_shape=selected_dilo_shape.get(),
         iterations=int(dilation_iterations.get()),
     ),
 )
@@ -336,7 +336,7 @@ button8 = ttk.Button(
         np.array(image),
         opening,
         kernel_size=int(opening_kernel_size.get()),
-        kernel_shape=opening_kernel_shape.get(),
+        kernel_shape=selected_open_shape.get(),
         iterations=int(opening_iterations.get()),
     ),
 )
@@ -386,7 +386,7 @@ button9 = ttk.Button(
         np.array(image),
         closing,
         kernel_size=int(closing_kernel_size.get()),
-        kernel_shape=closing_kernel_shape.get(),
+        kernel_shape=selected_close_shape.get(),
         iterations=int(closing_iterations.get()),
     ),
 )
