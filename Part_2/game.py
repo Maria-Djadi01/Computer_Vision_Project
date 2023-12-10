@@ -11,7 +11,7 @@ from Part_2.obstacle import Obstacle
 
 
 class Game:
-    def __init__(self, cap_width, cap_height, game_frame_width, game_frame_height):
+    def __init__(self, game_frame_width, game_frame_height, cap_width=320, cap_height=180):
         """
         Initialize the game.
 
