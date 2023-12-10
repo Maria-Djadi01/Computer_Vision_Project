@@ -93,7 +93,8 @@ def erosion(img, kernel_size, kernel_shape, iterations):
 
     for iteration in range(iterations):
         i = 0
-        while i < height:
+        while i < height :
+            
             j = 0
             while j < width:
                 if img[i, j] == 255:
@@ -123,9 +124,7 @@ def erosion(img, kernel_size, kernel_shape, iterations):
                 j += 1
 
             i += 1
-
         img = img_result.copy()
-
     return img_result
 
 

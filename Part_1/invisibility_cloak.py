@@ -2,7 +2,8 @@ import numpy as np
 import cv2
 import sys
 
-sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
+# sys.path.insert(0, r"C:\\Users\\HI\\My-Github\\Computer_Vision_Project")
+sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
 from Part_1.filters.morphologic_filter import closing
 from utils import detect_color_object
 
@@ -118,7 +119,7 @@ class invisibility_cloak:
 
             hue_range = (70, 100)  # blue
             colored_object_mask = self.object_color_detection(img, hue_range)
-            colored_object_mask = closing(colored_object_mask, 9, "cross")
+            colored_object_mask = closing(colored_object_mask, 9, "cross", 1)
             background_to_show = self.and_operation(background, colored_object_mask)
 
             colored_object_mask_inverse = self.inverse_array_values(colored_object_mask)
@@ -134,12 +135,5 @@ class invisibility_cloak:
         cv2.destroyAllWindows()
 
 
-# cloak = invisibility_cloak()
-# cloak.run()
-import cv2
-import sys
-sys.append(0, "D:/2M/Vision/Computer_Vision_Project")
-from utils import detect_color_object
-
-class InvisibilityCloak():
-    pass
+if __name__ == "__main__":
+    invisibility_cloak().run()

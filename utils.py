@@ -197,9 +197,10 @@ def detect_color_object(img, color, h_limit, s_limit, v_limit):
 def green_screen(mask, img, back):
     result = my_copy(img, gray=False)
     height, width, channels = my_shape(img, gray=False)
+
     for i in my_range(height):
         for j in my_range(width):
-            if mask[i, j][0] == 255:
+            if mask[i, j] == 255:
                 result[i, j] = back[i, j]
     return result
 
