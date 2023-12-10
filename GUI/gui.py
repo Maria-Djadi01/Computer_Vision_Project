@@ -609,7 +609,7 @@ button12 = ttk.Button(
 button12.grid(row=13, column=1, padx=10, pady=10)
 
 
-window_width = 970
+window_width = 1150
 window_height = 750
 root.geometry(f"{window_width}x{window_height}")
 
