@@ -2,11 +2,6 @@ import sys
 import cv2
 import numpy as np
 
-sys.path.insert(0, "../../Computer_Vision_Project")
-
-# from utils import my_copy
-
-
 def my_copy(img, gray=True):
     # Get the dimensions of the image
     height = len(img)
