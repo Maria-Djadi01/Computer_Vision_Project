@@ -1,6 +1,6 @@
 from utils import *
 
-def bilateral_filter(image, spatial_sigma, intensity_sigma, neighborhood_size):
+def bilateral_filter(image, neighborhood_size, spatial_sigma, intensity_sigma):
     height, width = image.shape
     result = np.zeros((height, width))
 

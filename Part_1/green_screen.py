@@ -1,7 +1,7 @@
 import cv2
 import sys
 from PIL import Image
-sys.path.insert(0, "D:/2M/Vision/Computer_Vision_Project")
+sys.path.insert(0, "C:\Users\HI\My-Github\Computer_Vision_Project")
 
 from utils import get_limits, BGR2HSV, my_inRange, green_screen, BGR2HSV_color, my_copy, my_shape
 
