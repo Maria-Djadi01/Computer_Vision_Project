@@ -16,7 +16,7 @@ from Part_1.filters.morphologic_filter import erosion, dilation, opening, closin
 from Part_1.filters.sobel_filter import sobel_filter
 from Part_1.filters.threshold_filter import custom_threshold
 
-# from Part_1.invisibility_cloak import invisibility_cloak
+from Part_1.invisibility_cloak import invisibility_cloak
 
 # import Part_1.object_detection
 
@@ -497,15 +497,16 @@ button13 = ttk.Button(
 button13.grid(row=12, column=1, padx=10, pady=10)
 
 
-# def run_invisibility_cloak():
-#     cloak_instance = invisibility_cloak()
-#     cloak_instance.run()
+def run_invisibility_cloak():
+    cloak_instance = invisibility_cloak()
+    cloak_instance.run()
 
 
 button13 = ttk.Button(
     right_frame,
     text="Invisibility Cloak",
     width=15,
+    command=lambda: run_invisibility_cloak()
 )
 button13.grid(row=12, column=2, padx=10, pady=10)
 
