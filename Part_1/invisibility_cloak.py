@@ -65,7 +65,7 @@ class invisibility_cloak:
 
     def object_color_detection(self, img, hue_range):
         # hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        hsv_img = BGR2HSV( img )
+        hsv_img = self.BGR2HSV( img )
 
         lower_bound = np.array([hue_range[0], 50, 50])
         upper_bound = np.array([hue_range[1], 255, 255])
